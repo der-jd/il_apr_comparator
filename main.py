@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 
+import datetime
 import time
 import re
 
@@ -55,5 +56,14 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> int:
 
 
 if __name__ == "__main__":
-    print(get_apr_from_cakedefi(("BCH", "DFI")))
-    #coin_prices.get_coin_prices(, "eur")
+    apr_btc_dfi = get_apr_from_cakedefi(("BTC", "DFI"))
+    apr_bch_dfi = get_apr_from_cakedefi(("BCH", "DFI"))
+    print(apr_bch_dfi)
+    print(apr_btc_dfi)
+
+    coins = ["bitcoin", "bitcoin-cash", "defichain"]
+    days_for_il = 30
+    current_coin_prices = coin_prices.get_coin_prices(coins, currency = "eur")
+    datetime_utc = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days = days_for_il)
+    historical_coin_prices = coin_prices.get_coin_prices(coins, datetime_utc, currency = "eur")
+
