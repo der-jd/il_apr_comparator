@@ -1,3 +1,6 @@
+[BASIC]
+good-names = c # for loops
+
 [FORMAT]
 max-line-length = 160
 

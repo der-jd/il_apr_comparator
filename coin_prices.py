@@ -51,8 +51,6 @@ def get_historical_coin_prices(coins: list[str], datetime_utc: datetime.datetime
     prices = {}
     for c in coins:
         data = _get_historical_coin_price(c, datetime_utc)
-        #print(data) # TODO delete after test
-        print("\n\n==============\n\n") # TODO delete after test
         prices[c] = {currency: data['market_data']['current_price'][currency]}
     return prices
 
