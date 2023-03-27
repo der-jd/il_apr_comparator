@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-import boto3
 import json
+
+import boto3
 
 
 PARAMETER_STORE_KEY_SNS_TOPIC_NAME = "il-apr-comparator/sns-topic-name"
