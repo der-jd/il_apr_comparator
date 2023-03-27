@@ -23,7 +23,7 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
         wait_for_javascript_content = 5
         print(f"Wait {wait_for_javascript_content} seconds until Javascript content is loaded...")
         WebDriverWait(browser, wait_for_javascript_content).until(time.sleep(wait_for_javascript_content + 3))
-    except Exception as e:
+    except Exception: # pylint: disable=broad-exception-caught
         print("Timeout/exception on purpose: wait time is over!")
     html = browser.page_source
 
@@ -32,7 +32,7 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
     print(f"Found coin pairs:\n{[p.get_text().strip() for p in coin_pair_blocks]}")
 
     if not coin_pair_blocks:
-        raise RuntimeError(f"ERROR: HTML tags which contain coin pairs not found!")
+        raise RuntimeError("ERROR: HTML tags which contain coin pairs not found!")
 
     for i in coin_pair_blocks:
         # Alternative if pattern / approach. Just for documentation.
@@ -45,7 +45,7 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
 
             if re.match(r"\bAPR[0-9]?", apr_block.get_text().strip()): # \b: match beginning of a word
                 return float(re.search(r"[0-9]+\.[0-9]+", apr_block.get_text().strip()).group(0))
-            else:
-                raise RuntimeError(f"ERROR: APR of coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
+
+            raise RuntimeError(f"ERROR: APR of coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
 
     raise RuntimeError(f"ERROR: Coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
