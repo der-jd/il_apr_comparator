@@ -9,19 +9,6 @@ import requests
 API_BASE_URL = "https://api.coingecko.com/api/v3"
 
 
-def get_coin_prices(coins: list[str], datetime_utc: datetime, currency: str = "eur") -> list[dict]:
-    print(f"Get coin prices for {coins} in {currency}...")
-
-    if not datetime_utc:
-        return _get_current_coin_prices(coins, currency)
-    else:
-        prices = []
-        for c in coins:
-            data = _get_historical_coin_price(c, datetime_utc)
-            prices.append({c: {currency: data['market_data']['current_price'][data['symbol']]}})
-        return prices
-
-
 # coins: e.g. ["bitcoin", "ethereum", ...]
 # Example for response body:
 #{
@@ -32,7 +19,9 @@ def get_coin_prices(coins: list[str], datetime_utc: datetime, currency: str = "e
 #    "eur": 1636.82
 #  }
 #}
-def _get_current_coin_prices(coins: list[str], currency: str = "EUR") -> dict:
+def get_current_coin_prices(coins: list[str], currency: str = "eur") -> dict:
+    print(f"Get current coin prices for {coins} in '{currency}'...")
+
     url = f"{API_BASE_URL}/simple/price?ids={','.join(c for c in coins)}&vs_currencies={currency}"
     headers = {
         "accept": "application/json"
@@ -45,6 +34,27 @@ def _get_current_coin_prices(coins: list[str], currency: str = "EUR") -> dict:
         raise RuntimeError(f"ERROR: API call failed!\n{response.status_code} {response.reason}")
 
     return response.json()
+
+
+# Example for return value:
+#{
+#  "bitcoin": {
+#    "eur": 25840
+#  },
+#  "ethereum": {
+#    "eur": 1636.82
+#  }
+#}
+def get_historical_coin_prices(coins: list[str], datetime_utc: datetime.datetime, currency: str = "eur") -> dict:
+    print(f"Get historical coin prices for {coins} in '{currency}'...")
+
+    prices = {}
+    for c in coins:
+        data = _get_historical_coin_price(c, datetime_utc)
+        #print(data) # TODO delete after test
+        print("\n\n==============\n\n") # TODO delete after test
+        prices[c] = {currency: data['market_data']['current_price'][currency]}
+    return prices
 
 
 # coin: e.g. "bitcoin" or "ethereum"
@@ -86,8 +96,10 @@ def _get_current_coin_prices(coins: list[str], currency: str = "EUR") -> dict:
 #    "bing_matches": null
 #  }
 #}
-def _get_historical_coin_price(coin: str, datetime_utc: datetime) -> dict:
-    date = datetime_utc.datetime.strftime("%d-%m-%Y")
+def _get_historical_coin_price(coin: str, datetime_utc: datetime.datetime) -> dict:
+    date = datetime_utc.strftime("%d-%m-%Y")
+    print(f"Get coin prices at date {date}...")
+
     url = f"{API_BASE_URL}/coins/{coin}/history?date={date}"
     headers = {
         "accept": "application/json"
