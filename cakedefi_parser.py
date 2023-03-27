@@ -13,7 +13,7 @@ REGEX_HTML_COIN_PAIR_BLOCK = ".*coinTextMedium.*"
 REGEX_HTML_APR_BLOCK = ".*tableCellLeft.*tableCell.*"
 
 
-def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> int:
+def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
     print(f"Search for APR of coin pair '{coin_pair[0]}-{coin_pair[1]}'")
     print(f"Get HTML content of {URL_CAKEDEFI_LM}...")
 
@@ -44,7 +44,7 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> int:
             apr_block = i.find_next('div', {'class': re.compile(REGEX_HTML_APR_BLOCK)})
 
             if re.match(r"\bAPR[0-9]?", apr_block.get_text().strip()): # \b: match beginning of a word
-                return re.search(r"[0-9]+\.[0-9]+", apr_block.get_text().strip()).group(0)
+                return float(re.search(r"[0-9]+\.[0-9]+", apr_block.get_text().strip()).group(0))
             else:
                 raise RuntimeError(f"ERROR: APR of coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
 
