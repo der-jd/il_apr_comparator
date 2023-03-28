@@ -7,6 +7,9 @@ import impermanent_loss
 import cakedefi_parser
 
 
+# TODO: return comparison as json?!
+# IMPORTANT: The tool displays some values with two decimals and truncates the rest. It does NOT round them in a mathematical sense!
+# I.e. 0.6775 --> 0.677 instead of the expected 0.678
 def main(coinpair_ids_symbols: tuple[tuple], number_of_days_for_comparison: int, currency = "eur") -> None:
     coinpair_ids = [coinpair_ids_symbols[0][0], coinpair_ids_symbols[1][0]]
     current_coin_prices = coin_prices.get_current_coin_prices(coinpair_ids, currency = currency)
@@ -15,21 +18,24 @@ def main(coinpair_ids_symbols: tuple[tuple], number_of_days_for_comparison: int,
 
     coinpair_symbols = (coinpair_ids_symbols[0][1], coinpair_ids_symbols[1][1])
     print(f"Calculate impermanent loss for {coinpair_symbols} over the last {number_of_days_for_comparison} days...")
-    il = impermanent_loss.calculate_impermanent_loss(historical_coin_prices[coinpair_ids[0]][currency],
-                                                        historical_coin_prices[coinpair_ids[1]][currency],
-                                                        current_coin_prices[coinpair_ids[0]][currency],
-                                                        current_coin_prices[coinpair_ids[1]][currency])
-    print(f"Impermanent loss for {coinpair_symbols} over the last {number_of_days_for_comparison} days: {il}")
+    _impermanent_loss = impermanent_loss.calculate_impermanent_loss(historical_coin_prices[coinpair_ids[0]][currency],
+                                                                    historical_coin_prices[coinpair_ids[1]][currency],
+                                                                    current_coin_prices[coinpair_ids[0]][currency],
+                                                                    current_coin_prices[coinpair_ids[1]][currency])
+    print(f">>>>>> Impermanent loss for {coinpair_symbols} over the last {number_of_days_for_comparison} days: {round(_impermanent_loss, 3)} %")
+
 
     apr = cakedefi_parser.get_apr_from_cakedefi(coinpair_symbols)
-    print(f">>>>>> APR for Liquidity Pool {coinpair_symbols}: {apr}")
+    print(f">>>>>> APR for Liquidity Pool {coinpair_symbols}: {round(apr, 3)} %")
+    apr_per_days = apr/(365/number_of_days_for_comparison)
+    print(f">>>>>> APR for Liquidity Pool {coinpair_symbols} per {number_of_days_for_comparison} days: {round(apr_per_days, 3)} %")
 
+    print("\n=============================")
+    print(f">>>>>> The Liquidity Mining yield for {coinpair_symbols} per {number_of_days_for_comparison} days is: {round(apr_per_days - _impermanent_loss, 3)} %\n")
     # TODO send mail via AWS SNS
 
 
 if __name__ == "__main__":
-    # Input
-    coinpair_ids_symbols = (("bitcoin", "btc"), ("defichain", "dfi"))
-    main(coinpair_ids_symbols, number_of_days_for_comparison = 30, currency = "eur")
-    coinpair_ids_symbols = (("bitcoin-cash", "bch"), ("defichain", "dfi"))
-    main(coinpair_ids_symbols, number_of_days_for_comparison = 30, currency = "eur")
+    coinpairs = [(("bitcoin", "btc"), ("defichain", "dfi")), (("bitcoin-cash", "bch"), ("defichain", "dfi"))]
+    for pair in coinpairs:
+        main(pair, number_of_days_for_comparison = 30, currency = "eur")
