@@ -7,31 +7,29 @@ import impermanent_loss
 import cakedefi_parser
 
 
-if __name__ == "__main__":
-    coins = ["bitcoin", "bitcoin-cash", "defichain"]
-    days_for_il = 30
-    currency = "eur"
-    current_coin_prices = coin_prices.get_current_coin_prices(coins, currency = currency)
-    datetime_utc = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days = days_for_il)
-    historical_coin_prices = coin_prices.get_historical_coin_prices(coins, datetime_utc, currency = currency)
+def main(coinpair_ids_symbols: tuple[tuple], number_of_days_for_comparison: int, currency = "eur") -> None:
+    coinpair_ids = [coinpair_ids_symbols[0][0], coinpair_ids_symbols[1][0]]
+    current_coin_prices = coin_prices.get_current_coin_prices(coinpair_ids, currency = currency)
+    datetime_utc = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days = number_of_days_for_comparison)
+    historical_coin_prices = coin_prices.get_historical_coin_prices(coinpair_ids, datetime_utc, currency = currency)
 
-    print(f"Calculate impermanent loss for BTC-DFI over the last {days_for_il} days...")
-    il_btc_dfi = impermanent_loss.calculate_impermanent_loss(historical_coin_prices["bitcoin"][currency],
-                                                                historical_coin_prices["defichain"][currency],
-                                                                current_coin_prices["bitcoin"][currency],
-                                                                current_coin_prices["defichain"][currency])
-    print(f"Impermanent loss for BTC-DFI over the last {days_for_il} days: {il_btc_dfi}")
+    coinpair_symbols = (coinpair_ids_symbols[0][1], coinpair_ids_symbols[1][1])
+    print(f"Calculate impermanent loss for {coinpair_symbols} over the last {number_of_days_for_comparison} days...")
+    il = impermanent_loss.calculate_impermanent_loss(historical_coin_prices[coinpair_ids[0]][currency],
+                                                        historical_coin_prices[coinpair_ids[1]][currency],
+                                                        current_coin_prices[coinpair_ids[0]][currency],
+                                                        current_coin_prices[coinpair_ids[1]][currency])
+    print(f"Impermanent loss for {coinpair_symbols} over the last {number_of_days_for_comparison} days: {il}")
 
-    print(f"Calculate impermanent loss for BCH-DFI over the last {days_for_il} days...")
-    il_bch_dfi = impermanent_loss.calculate_impermanent_loss(historical_coin_prices["bitcoin-cash"][currency],
-                                                                historical_coin_prices["defichain"][currency],
-                                                                current_coin_prices["bitcoin-cash"][currency],
-                                                                current_coin_prices["defichain"][currency])
-    print(f"Impermanent loss for BCH-DFI over the last {days_for_il} days: {il_bch_dfi}")
-
-    apr_btc_dfi = cakedefi_parser.get_apr_from_cakedefi(("BTC", "DFI"))
-    print(f">>>>>> APR for Liquidity Pool BTC-DFI: {apr_btc_dfi}")
-    apr_bch_dfi = cakedefi_parser.get_apr_from_cakedefi(("BCH", "DFI"))
-    print(f">>>>>> APR for Liquidity Pool BCH-DFI: {apr_bch_dfi}")
+    apr = cakedefi_parser.get_apr_from_cakedefi(coinpair_symbols)
+    print(f">>>>>> APR for Liquidity Pool {coinpair_symbols}: {apr}")
 
     # TODO send mail via AWS SNS
+
+
+if __name__ == "__main__":
+    # Input
+    coinpair_ids_symbols = (("bitcoin", "btc"), ("defichain", "dfi"))
+    main(coinpair_ids_symbols, number_of_days_for_comparison = 30, currency = "eur")
+    coinpair_ids_symbols = (("bitcoin-cash", "bch"), ("defichain", "dfi"))
+    main(coinpair_ids_symbols, number_of_days_for_comparison = 30, currency = "eur")
