@@ -21,6 +21,9 @@ jobs:
           name: Install pyright
           command: pip install pyright
       - run:
+          name: Install dependencies
+          command: pip install -r ./scripts/requirements.txt
+      - run:
           name: Lint code
           command: pylint ./scripts
       - run:
