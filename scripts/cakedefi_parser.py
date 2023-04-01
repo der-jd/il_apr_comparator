@@ -21,7 +21,7 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
         seconds_to_wait_for_javascript_content = 5
         print(f"Wait {seconds_to_wait_for_javascript_content} seconds until Javascript content is loaded...")
         WebDriverWait(browser, seconds_to_wait_for_javascript_content).until(time.sleep(seconds_to_wait_for_javascript_content + 3))
-    except Exception: # pylint: disable=broad-exception-caught
+    except Exception: # pylint: disable = broad-exception-caught
         print("Timeout/exception on purpose: wait time is over!")
     html = browser.page_source
 
