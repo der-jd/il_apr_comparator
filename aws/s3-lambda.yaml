@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: S3 bucket to store code for Lambda function
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "il-apr-comparator-lambda"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
+
+  S3BucketNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: "il-apr-comparator/s3-bucket-lambda/name"
+      Description: "Name of the S3 bucket which stores the Lambda function. Param is consumed in the CircleCI pipeline."
+      Type: String
+      Value: !Ref S3Bucket
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
+
+Outputs:
+  S3BucketName:
+    Description: "Name"
+    Value: !Ref S3Bucket
+    Export:
+      Name: "il-apr-comparator/BucketName"

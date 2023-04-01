@@ -56,12 +56,12 @@ jobs:
       - run:
           name: Empty S3 bucket
           command: |
-            s3_bucket_name = $(aws ssm get-parameter --name "s3-bucket-lambda/name")
+            s3_bucket_name = $(aws ssm get-parameter --name "il-apr-comparator/s3-bucket-lambda/name")
             aws s3 rm s3://$s3_bucket_name delete-content
       - run:
           name: Upload code to S3
           command: |
-            s3_bucket_name = $(aws ssm get-parameter --name "s3-bucket-lambda/name")
+            s3_bucket_name = $(aws ssm get-parameter --name "il-apr-comparator/s3-bucket-lambda/name")
             aws s3 cp "deployment-package.zip" "s3://$s3_bucket_name"
 
   create-aws-resources:
@@ -76,8 +76,8 @@ jobs:
           name: Create stack for Lambda function
           command: ./aws/create_stack.sh ./aws/lambda.yaml "" il-apr-comparator-lambda-stack
       - run:
-          name: Create stack for SNS topic
-          command: ./aws/create_stack.sh ./aws/sns.yaml "" il-apr-comparator-sns-stack
+          name: Create stack for SES notification
+          command: ./aws/create_stack.sh ./aws/ses.yaml "" il-apr-comparator-ses-stack
 
 
 workflows:

@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Lambda function to compare Impermanent Loss to APR and corresponding IAM resources for execution.
+
+Resources:
+  # TODO: delete?
+  #AccessToSNSPolicy:
+  #  Type: AWS::IAM::ManagedPolicy
+  #  Properties:
+  #    ManagedPolicyName: !Join ["-", [!Ref AWS::Region, "il-apr-comparator-lambda-execution-role"]]
+  #    Description: "Policy for the execution of the corresponding Lambda function."
+  #    PolicyDocument:
+  #      Version: "2012-10-17"
+  #      Statement:
+  #        - Sid: AllowAccessToSNS
+  #          Effect: Allow
+  #          Action:
+  #            - 'iam:ListAccountAliases'
+  #            - 'iam:ListUsers'
+  #            - 'iam:GetAccountSummary'
+  #          Resource: '*'
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ["-", [!Ref AWS::Region, "il-apr-comparator-lambda-execution-role"]]
+      Description: "Execution role automatically assumed by the corresponding Lambda function"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole # For access to CloudWatch
+        - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+        - arn:aws:iam::aws:policy/AmazonSESFullAccess
+        #- !Ref LambdaExecutionPolicy # TODO delete?
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: "il-apr-comparator"
+      Description: "Calculate Impermanent Loss for a given cryptocurrency coin pair and compare it to the APR from Liquidity Mining on CakeDefi."
+      Runtime: python3.9
+      Handler: deployment-package.lambda_handler
+      Code:
+        S3Bucket: !ImportValue "il-apr-comparator/BucketName"
+        S3Key: "deployment-package.zip"
+      Role: !Ref LambdaExecutionRole
+      Timeout: 12
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
