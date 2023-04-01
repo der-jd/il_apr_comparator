@@ -32,4 +32,4 @@ Outputs:
     Description: "Name"
     Value: !Ref S3Bucket
     Export:
-      Name: "il-apr-comparator/BucketName"
+      Name: "il-apr-comparator:BucketName"
