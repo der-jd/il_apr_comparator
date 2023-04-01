@@ -1,0 +1,101 @@
+version: 2.1
+
+
+parameters:
+  create-base-infrastructure:
+    description: If true, create the necessary base infrastructure in AWS.
+    type: boolean
+    default: false
+
+
+jobs:
+  check-python-code:
+    docker:
+      - image: cimg/python:3.11.2
+    steps:
+      - checkout
+      - run:
+          name: Install pylint
+          command: pip install pylint
+      - run:
+          name: Install pyright
+          command: pip install pyright
+      - run:
+          name: Lint code
+          command: pylint ./scripts
+      - run:
+          name: Check types
+          command: pyright
+
+  check-cloudformation-code:
+    docker:
+      - image: cimg/python:3.11.2
+    steps:
+      - checkout
+      - run:
+          name: Install cfn-lint
+          command: pip install cfn-lint
+      - run:
+          name: Lint code
+          command: |
+            for file in $(find ./aws -name "*.yaml"); do
+              cfn-lint $file
+            done
+
+  deploy-to-lambda:
+    docker:
+      - image: cimg/aws:2023.03
+    steps:
+      - checkout
+      - run:
+          name: Install zip
+          command: apt install zip
+      - run:
+          name: Zip code
+          command: zip -r deployment-package.zip ./scripts
+      - run:
+          name: Empty S3 bucket
+          command: |
+            s3_bucket_name = $(aws ssm get-parameter --name "s3-bucket-lambda/name")
+            aws s3 rm s3://$s3_bucket_name delete-content
+      - run:
+          name: Upload code to S3
+          command: |
+            s3_bucket_name = $(aws ssm get-parameter --name "s3-bucket-lambda/name")
+            aws s3 cp "deployment-package.zip" "s3://$s3_bucket_name"
+
+  create-aws-resources:
+    docker:
+      - image: cimg/aws:2023.03
+    steps:
+      - checkout
+      - run:
+          name: Create stack for S3 bucket for Lambda function
+          command: ./aws/create_stack.sh ./aws/s3-lambda.yaml "" il-apr-comparator-s3-bucket-stack
+      - run:
+          name: Create stack for Lambda function
+          command: ./aws/create_stack.sh ./aws/lambda.yaml "" il-apr-comparator-lambda-stack
+      - run:
+          name: Create stack for SNS topic
+          command: ./aws/create_stack.sh ./aws/sns.yaml "" il-apr-comparator-sns-stack
+
+
+workflows:
+  build-deploy:
+    when:
+      not: << pipeline.parameters.create-base-infrastructure >>
+    jobs:
+      - check-python-code
+      - check-cloudformation-code
+      - deploy-to-lambda:
+          requires:
+            - check-python-code
+            - check-cloudformation-code
+          filters:
+            tags:
+              only: /v\.[0-9]+\.?[0-9]+\.?[0-9]+/
+
+  create-base-infrastructure:
+    when: << pipeline.parameters.create-base-infrastructure >>
+    jobs:
+      - create-aws-resources
