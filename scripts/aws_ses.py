@@ -15,8 +15,8 @@ def send_mail(event, data):
     mail_address = ssm.get_parameters(Name = [PARAMETER_STORE_KEY_MAIL_ADDRESS])['Parameters'][0]['Value']
     message = f"Impermanent Loss and APR for the last 30 days: {data}" # TODO update mail message
 
-    sns = boto3.client('sns')
-    response = sns.publish(
+    sns = boto3.client('ses')
+    response = ses.publish(
         TopicArn = f"arn:aws:sns:{sns_topic_region}:{event.requestContext.accountId}:{sns_topic_name}",
         Message = message,
         Subject = "Impermanent Loss to APR comparator",
