@@ -32,14 +32,14 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
     if not coin_pair_blocks:
         raise RuntimeError("ERROR: HTML tags which contain coin pairs not found!")
 
-    for i in coin_pair_blocks:
-        # Alternative if pattern / approach. Just for documentation.
-        # if i.find('span', {'class': re.compile(".*coinText.*")}, string = "BCH") and i.find('span', {'class': re.compile(".*coinText.*")}, string = "-DFI"):
-        if re.match(f"{coin_pair[0]}\n?-\n?{coin_pair[1]}", i.get_text().strip(), re.IGNORECASE) or \
-           re.match(f"{coin_pair[1]}\n?-\n?{coin_pair[0]}", i.get_text().strip(), re.IGNORECASE): # e.g. "BCH-DFI" or "DFI-BCH"
+    for b in coin_pair_blocks:
+        # Alternative if-pattern/-approach. Just for documentation.
+        # if b.find('span', {'class': re.compile(".*coinText.*")}, string = "BCH") and b.find('span', {'class': re.compile(".*coinText.*")}, string = "-DFI"):
+        if re.match(f"{coin_pair[0]}\n?-\n?{coin_pair[1]}", b.get_text().strip(), re.IGNORECASE) or \
+           re.match(f"{coin_pair[1]}\n?-\n?{coin_pair[0]}", b.get_text().strip(), re.IGNORECASE): # e.g. "BCH-DFI" or "DFI-BCH"
             print(f"Requested coin pair '{coin_pair[0]}-{coin_pair[1]}' found!")
             print("Search for corresponding APR...")
-            apr_block = i.find_next('div', {'class': re.compile(REGEX_HTML_APR_BLOCK)})
+            apr_block = b.find_next('div', {'class': re.compile(REGEX_HTML_APR_BLOCK)})
 
             if re.match(r"\bAPR[0-9]?", apr_block.get_text().strip()): # \b: match beginning of a word
                 return float(re.search(r"[0-9]+\.[0-9]+", apr_block.get_text().strip()).group(0))
