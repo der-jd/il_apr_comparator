@@ -16,13 +16,15 @@ def lambda_handler(event, context) -> None: # pylint: disable = unused-argument
 # TODO: return comparison as json?!
 # IMPORTANT: The tool displays some values with two decimals and truncates the rest. It does NOT round them in a mathematical sense!
 # I.e. 0.6775 --> 0.677 instead of the expected 0.678
-def main(coinpair_ids_symbols: tuple[tuple], number_of_days_for_comparison: int, currency = "eur") -> None:
-    coinpair_ids = [coinpair_ids_symbols[0][0], coinpair_ids_symbols[1][0]]
+def main(coinpair_ids_symbols: tuple[tuple[str, str]], number_of_days_for_comparison: int, currency = "eur") -> None:
+    # I don't know why pyright reports this error for the following line: "Index 1 is out of range for type tuple[tuple[str, str]] (reportGeneralTypeIssues)"
+    coinpair_ids = [coinpair_ids_symbols[0][0], coinpair_ids_symbols[1][0]] # type: ignore
     current_coin_prices = coin_prices.get_current_coin_prices(coinpair_ids, currency = currency)
     datetime_utc = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days = number_of_days_for_comparison)
     historical_coin_prices = coin_prices.get_historical_coin_prices(coinpair_ids, datetime_utc, currency = currency)
 
-    coinpair_symbols = (coinpair_ids_symbols[0][1], coinpair_ids_symbols[1][1])
+    # I don't know why pyright reports this error for the following line: "Index 1 is out of range for type tuple[tuple[str, str]] (reportGeneralTypeIssues)"
+    coinpair_symbols = (coinpair_ids_symbols[0][1], coinpair_ids_symbols[1][1]) # type: ignore
     print(f"Calculate impermanent loss for {coinpair_symbols} over the last {number_of_days_for_comparison} days...")
     _impermanent_loss = impermanent_loss.calculate_impermanent_loss(historical_coin_prices[coinpair_ids[0]][currency],
                                                                     historical_coin_prices[coinpair_ids[1]][currency],
