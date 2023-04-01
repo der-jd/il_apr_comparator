@@ -74,13 +74,13 @@ jobs:
       - checkout
       - run:
           name: Create stack for S3 bucket for Lambda function
-          command: ./aws/create_stack.sh ./aws/s3-lambda.yaml "" il-apr-comparator-s3-bucket-stack
+          command: ./aws/create_stack.sh ./aws/s3-lambda.yaml il-apr-comparator-s3-bucket-stack
       - run:
           name: Create stack for Lambda function
-          command: ./aws/create_stack.sh ./aws/lambda.yaml "" il-apr-comparator-lambda-stack
+          command: ./aws/create_stack.sh ./aws/lambda.yaml il-apr-comparator-lambda-stack
       - run:
           name: Create stack for SES notification
-          command: ./aws/create_stack.sh ./aws/ses.yaml "" il-apr-comparator-ses-stack
+          command: ./aws/create_stack.sh ./aws/ses.yaml il-apr-comparator-ses-stack
 
 
 workflows:
