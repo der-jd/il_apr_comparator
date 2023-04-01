@@ -7,6 +7,12 @@ import impermanent_loss
 import cakedefi_parser
 
 
+def lambda_handler(event, context) -> None: # pylint: disable = unused-argument
+    coinpairs = [(("bitcoin", "btc"), ("defichain", "dfi")), (("bitcoin-cash", "bch"), ("defichain", "dfi"))]
+    for pair in coinpairs:
+        main(pair, number_of_days_for_comparison = 30, currency = "eur")
+
+
 # TODO: return comparison as json?!
 # IMPORTANT: The tool displays some values with two decimals and truncates the rest. It does NOT round them in a mathematical sense!
 # I.e. 0.6775 --> 0.677 instead of the expected 0.678
@@ -32,10 +38,8 @@ def main(coinpair_ids_symbols: tuple[tuple], number_of_days_for_comparison: int,
 
     print("\n=============================")
     print(f">>>>>> The Liquidity Mining yield for {coinpair_symbols} per {number_of_days_for_comparison} days is: {round(apr_per_days - _impermanent_loss, 3)} %\n")
-    # TODO send mail via AWS SNS
+    # TODO send mail via AWS SES
 
 
 if __name__ == "__main__":
-    coinpairs = [(("bitcoin", "btc"), ("defichain", "dfi")), (("bitcoin-cash", "bch"), ("defichain", "dfi"))]
-    for pair in coinpairs:
-        main(pair, number_of_days_for_comparison = 30, currency = "eur")
+    lambda_handler({}, None) # pylint: disable = no-value-for-parameter
