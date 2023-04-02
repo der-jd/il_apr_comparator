@@ -19,7 +19,7 @@ Resources:
   S3BucketNameParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: "il-apr-comparator/s3-bucket-lambda/name"
+      Name: "/il-apr-comparator/s3-bucket-lambda/name"
       Description: "Name of the S3 bucket which stores the Lambda function. Param is consumed in the CircleCI pipeline."
       Type: String
       Value: !Ref S3Bucket
