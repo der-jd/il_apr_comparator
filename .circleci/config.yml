@@ -87,6 +87,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: "Install dependencies"
+          command: pip install -r ./aws/requirements.txt
+      - run:
           name: "Create stack for S3 bucket for Lambda function"
           command: ./aws/create_stack.py --template "./aws/s3-lambda.yaml" --stack-name "il-apr-comparator-s3-bucket-stack"
       - run:
