@@ -9,39 +9,53 @@ parameters:
 
 
 jobs:
-  check-python-code:
+  lint-python-code:
     docker:
       - image: cimg/python:3.11.2
     steps:
       - checkout
       - run:
-          name: Install pylint
-          command: pip install pylint
-      - run:
-          name: Install pyright
-          command: pip install pyright
-      - run:
-          name: Install dependencies
+          name: "Install dependencies"
           command: pip install -r ./scripts/requirements.txt
       - run:
-          name: Lint code
-          command: pylint ./scripts
+          name: "Install pylint"
+          command: pip install pylint
       - run:
-          name: Check types
-          command: pyright
+          name: "Lint code"
+          command: |
+            for file in $(find . -name "*.py"); do
+              echo "lint $file..."
+              pylint $file
+            done
 
-  check-cloudformation-code:
+  type-check-python-code:
     docker:
       - image: cimg/python:3.11.2
     steps:
       - checkout
       - run:
-          name: Install cfn-lint
+          name: "Install dependencies"
+          command: pip install -r ./scripts/requirements.txt
+      - run:
+          name: "Install pyright"
+          command: pip install pyright
+      - run:
+          name: "Check types"
+          command: pyright
+
+  lint-cloudformation-templates:
+    docker:
+      - image: cimg/python:3.11.2
+    steps:
+      - checkout
+      - run:
+          name: "Install cfn-lint"
           command: pip install cfn-lint
       - run:
-          name: Lint code
+          name: "Lint code"
           command: |
             for file in $(find ./aws -name "*.yaml"); do
+              echo "lint $file..."
               cfn-lint $file
             done
 
@@ -88,12 +102,14 @@ workflows:
     when:
       not: << pipeline.parameters.create-base-infrastructure >>
     jobs:
-      - check-python-code
-      - check-cloudformation-code
+      - lint-python-code
+      - type-check-python-code
+      - lint-cloudformation-templates
       - deploy-to-lambda:
           requires:
-            - check-python-code
-            - check-cloudformation-code
+            - lint-python-code
+            - type-check-python-code
+            - lint-cloudformation-templates
           filters:
             tags:
               only: /v\.[0-9]+\.?[0-9]+\.?[0-9]+/
