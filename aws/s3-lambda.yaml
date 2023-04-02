@@ -6,7 +6,7 @@ Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: "il-apr-comparator-lambda"
+      BucketName: "il-apr-comparator-lambda-bucket"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
