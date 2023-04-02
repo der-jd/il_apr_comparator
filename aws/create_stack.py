@@ -25,10 +25,10 @@ def wait_for_stack_completion(stack_name: str) -> None:
     try:
         waiter.wait(StackName = stack_name)
         print(f"Stack '{stack_name}' created successfully!")
-    except:
+    except Exception as exc:
         response = cloudformation.describe_stacks(StackName = stack_name)
         status = response['Stacks'][0]['StackStatus']
-        raise RuntimeError(f"ERROR: Stack {stack_name} creation failed with status {status}!")
+        raise RuntimeError(f"ERROR: Stack {stack_name} creation failed with status {status}!") from exc
 
 
 if __name__ == '__main__':
