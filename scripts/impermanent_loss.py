@@ -1,7 +1,7 @@
 from math import sqrt
 
 
-# TODO fix il calculation
+# TODO fix il calculation # pylint: disable = fixme
 def calculate_impermanent_loss(coin1_initial_price: float, coin2_initial_price: float, coin1_current_price: float, coin2_current_price: float) -> float:
     print(f"Initial price coin 1: {coin1_initial_price}")
     print(f"Initial price coin 2: {coin2_initial_price}")

@@ -7,7 +7,7 @@ PARAMETER_STORE_KEY_SNS_TOPIC_NAME = "il-apr-comparator/sns-topic-name"
 PARAMETER_STORE_KEY_SNS_TOPIC_REGION = "il-apr-comparator/sns-topic-region"
 PARAMETER_STORE_KEY_MAIL_ADDRESS = "il-apr-comparator/mail-address"
 
-# TODO implement mail dispatch for notification about comparison
+# TODO implement mail dispatch for notification about comparison # pylint: disable = fixme
 def send_mail(event, data):
     ssm = boto3.client('ssm')
     sns_topic_name = ssm.get_parameters(Name = [PARAMETER_STORE_KEY_SNS_TOPIC_NAME])['Parameters'][0]['Value']
