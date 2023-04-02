@@ -8,16 +8,17 @@ import boto3
 def create_stack(template_file: str, stack_name: str) -> str:
     cloudformation = boto3.client('cloudformation')
     response = cloudformation.create_stack(
-        TemplateURL = template_file,
+        TemplateBody = _parse_template(template_file),
         StackName = stack_name,
         Capabilities=[
             'CAPABILITY_NAMED_IAM',
         ]
     )
 
-    print(f"Created stack '{stack_name}' with ID {response['StackId']}")
+    print(f"Creating stack '{stack_name}' with ID {response['StackId']}...")
 
     return response['StackId']
+
 
 def wait_for_stack_completion(stack_name: str) -> None:
     cloudformation = boto3.client('cloudformation')
@@ -28,7 +29,14 @@ def wait_for_stack_completion(stack_name: str) -> None:
     except Exception as exc:
         response = cloudformation.describe_stacks(StackName = stack_name)
         status = response['Stacks'][0]['StackStatus']
-        raise RuntimeError(f"ERROR: Stack {stack_name} creation failed with status {status}!") from exc
+        raise RuntimeError(f"ERROR: Stack '{stack_name}' creation failed with status {status}!") from exc
+
+
+def _parse_template(template_file: str) -> str:
+    with open(template_file) as file:
+        template_body = file.read()
+    boto3.client('cloudformation').validate_template(TemplateBody = template_body)
+    return template_body
 
 
 if __name__ == '__main__':
