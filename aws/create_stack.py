@@ -33,7 +33,7 @@ def wait_for_stack_completion(stack_name: str) -> None:
 
 
 def _parse_template(template_file: str) -> str:
-    with open(template_file) as file:
+    with open(template_file, encoding = 'utf-8') as file:
         template_body = file.read()
     boto3.client('cloudformation').validate_template(TemplateBody = template_body)
     return template_body
