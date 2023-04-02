@@ -37,7 +37,6 @@ if __name__ == '__main__':
                         help = "name/path of the template file",
                         required = True)
     parser.add_argument('-s', '--stack_name',
-                        metavar = '--stack-name',
                         help = "name of the stack",
                         required = True)
     args = parser.parse_args()
