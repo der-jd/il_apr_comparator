@@ -111,6 +111,8 @@ workflows:
             - type-check-python-code
             - lint-cloudformation-templates
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /v\.[0-9]+\.?[0-9]+\.?[0-9]+/
 
