@@ -24,8 +24,7 @@ Resources:
       Type: String
       Value: !Ref S3Bucket
       Tags:
-        - Key: "project"
-          Value: "il-apr-comparator"
+        project: il-apr-comparator
 
 Outputs:
   S3BucketName:
