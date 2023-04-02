@@ -65,18 +65,18 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install zip
-          command: apt install zip
+          name: "Install zip"
+          command: sudo apt-get install zip
       - run:
-          name: Zip code
+          name: "Zip code"
           command: zip -r deployment-package.zip ./scripts
       - run:
-          name: Empty S3 bucket
+          name: "Empty S3 bucket"
           command: |
             s3_bucket_name = $(aws ssm get-parameter --name "il-apr-comparator/s3-bucket-lambda/name")
             aws s3 rm s3://$s3_bucket_name delete-content
       - run:
-          name: Upload code to S3
+          name: "Upload code to S3"
           command: |
             s3_bucket_name = $(aws ssm get-parameter --name "il-apr-comparator/s3-bucket-lambda/name")
             aws s3 cp "deployment-package.zip" "s3://$s3_bucket_name"
@@ -87,13 +87,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Create stack for S3 bucket for Lambda function
+          name: "Create stack for S3 bucket for Lambda function"
           command: ./aws/create_stack.py --template "./aws/s3-lambda.yaml" --stack-name "il-apr-comparator-s3-bucket-stack"
       - run:
-          name: Create stack for Lambda function
+          name: "Create stack for Lambda function"
           command: ./aws/create_stack.py --template "./aws/lambda.yaml" --stack-name "il-apr-comparator-lambda-stack"
       - run:
-          name: Create stack for SES notification
+          name: "Create stack for SES notification"
           command: ./aws/create_stack.py --template "./aws/ses.yaml" --stack-name "il-apr-comparator-ses-stack"
 
 
