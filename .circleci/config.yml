@@ -81,7 +81,29 @@ jobs:
             s3_bucket_name = $(aws ssm get-parameter --name "il-apr-comparator/s3-bucket-lambda/name")
             aws s3 cp "deployment-package.zip" "s3://$s3_bucket_name"
 
-  create-aws-resources:
+  create-s3-bucket:
+    docker:
+      - image: cimg/aws:2023.03
+    steps:
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: |
+            pip install -r ./aws/requirements.txt
+            sudo apt-get install zip
+      - run:
+          name: "Create stack for S3 bucket"
+          command: ./aws/create_stack.py --template "./aws/s3-lambda.yaml" --stack_name "il-apr-comparator-s3-bucket-stack"
+      - run:
+          name: "Zip code"
+          command: zip -r deployment-package.zip ./scripts
+      - run:
+          name: "Upload code to S3"
+          command: |
+            s3_bucket_name = $(aws ssm get-parameter --name "il-apr-comparator/s3-bucket-lambda/name")
+            aws s3 cp "deployment-package.zip" "s3://$s3_bucket_name"
+
+  create-lambda-function:
     docker:
       - image: cimg/aws:2023.03
     steps:
@@ -90,14 +112,32 @@ jobs:
           name: "Install dependencies"
           command: pip install -r ./aws/requirements.txt
       - run:
-          name: "Create stack for S3 bucket for Lambda function"
-          command: ./aws/create_stack.py --template "./aws/s3-lambda.yaml" --stack_name "il-apr-comparator-s3-bucket-stack"
-      - run:
           name: "Create stack for Lambda function"
           command: ./aws/create_stack.py --template "./aws/lambda.yaml" --stack_name "il-apr-comparator-lambda-stack"
+
+  create-ses:
+    docker:
+      - image: cimg/aws:2023.03
+    steps:
+      - checkout
       - run:
-          name: "Create stack for SES notification"
+          name: "Install dependencies"
+          command: pip install -r ./aws/requirements.txt
+      - run:
+          name: "Create stack for SES"
           command: ./aws/create_stack.py --template "./aws/ses.yaml" --stack_name "il-apr-comparator-ses-stack"
+
+  create-eventbridge:
+    docker:
+      - image: cimg/aws:2023.03
+    steps:
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: pip install -r ./aws/requirements.txt
+      - run:
+          name: "Create stack for EventBridge"
+          command: ./aws/create_stack.py --template "./aws/eventbridge.yaml" --stack_name "il-apr-comparator-eventbridge-stack"
 
 
 workflows:
@@ -122,4 +162,7 @@ workflows:
   create-base-infrastructure:
     when: << pipeline.parameters.create-base-infrastructure >>
     jobs:
-      - create-aws-resources
+      - create-s3-bucket
+      - create-lambda-function
+      #- create-ses
+      #- create-eventbridge
