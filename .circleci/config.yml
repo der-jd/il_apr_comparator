@@ -3,7 +3,12 @@ version: 2.1
 
 parameters:
   create-base-infrastructure:
-    description: If true, create the necessary base infrastructure in AWS.
+    description: If true, creates the necessary base infrastructure in AWS.
+    type: boolean
+    default: false
+
+  delete-base-infrastructure:
+    description: If true, deletes the necessary base infrastructure in AWS.
     type: boolean
     default: false
 
@@ -139,6 +144,35 @@ jobs:
           name: "Create stack for EventBridge"
           command: ./aws/create_stack.py --template "./aws/eventbridge.yaml" --stack_name "il-apr-comparator-eventbridge-stack"
 
+  delete-s3-bucket:
+    docker:
+      - image: cimg/aws:2023.03
+    steps:
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: pip install -r ./aws/requirements.txt
+      - run:
+          name: "Empty S3 bucket"
+          command: |
+            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
+            aws s3 rm s3://$s3_bucket_name delete-content
+      - run:
+          name: "Delete stack for S3 bucket"
+          command: ./aws/delete_stack.py --stack_name "il-apr-comparator-s3-bucket-stack"
+
+  delete-lambda-function:
+    docker:
+      - image: cimg/aws:2023.03
+    steps:
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: pip install -r ./aws/requirements.txt
+      - run:
+          name: "Delete stack for Lambda function"
+          command: ./aws/delete_stack.py --stack_name "il-apr-comparator-lambda-stack"
+
 
 workflows:
   build-deploy:
@@ -168,3 +202,13 @@ workflows:
             - create-s3-bucket
       #- create-ses
       #- create-eventbridge
+
+  delete-base-infrastructure:
+    when: << pipeline.parameters.delete-base-infrastructure >>
+    jobs:
+      - delete-lambda-function
+      - delete-s3-bucket:
+          requires:
+            - delete-lambda-function
+      #- delete-ses
+      #- delete-eventbridge
