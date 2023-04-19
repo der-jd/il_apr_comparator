@@ -73,12 +73,12 @@ jobs:
       - run:
           name: "Empty S3 bucket"
           command: |
-            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name")
+            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
             aws s3 rm s3://$s3_bucket_name delete-content
       - run:
           name: "Upload code to S3"
           command: |
-            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name")
+            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
             aws s3 cp "deployment-package.zip" "s3://$s3_bucket_name"
 
   create-s3-bucket:
@@ -100,7 +100,7 @@ jobs:
       - run:
           name: "Upload code to S3"
           command: |
-            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name")
+            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
             aws s3 cp "deployment-package.zip" "s3://$s3_bucket_name"
 
   create-lambda-function:
