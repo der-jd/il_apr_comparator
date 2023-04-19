@@ -163,6 +163,8 @@ workflows:
     when: << pipeline.parameters.create-base-infrastructure >>
     jobs:
       - create-s3-bucket
-      - create-lambda-function
+      - create-lambda-function:
+          requires:
+            - create-s3-bucket
       #- create-ses
       #- create-eventbridge
