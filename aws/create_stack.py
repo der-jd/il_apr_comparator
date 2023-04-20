@@ -10,7 +10,7 @@ def create_stack(template_file: str, stack_name: str) -> str:
     response = cloudformation.create_stack(
         TemplateBody = _parse_template(template_file),
         StackName = stack_name,
-        Capabilities=[
+        Capabilities = [
             'CAPABILITY_NAMED_IAM',
         ]
     )
