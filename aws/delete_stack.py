@@ -5,25 +5,22 @@ import argparse
 import boto3
 
 
-def delete_stack(stack_name: str) -> str:
+def delete_stack(stack_name: str) -> None:
     cloudformation = boto3.client('cloudformation')
-    response = cloudformation.delete_stack(
-        StackName = stack_name
-    )
-
-    print(f"Deleting stack '{stack_name}' with ID {response['StackId']}...")
-
-    return response['StackId']
+    cloudformation.delete_stack(StackName = stack_name)
+    print(f"Deleting stack '{stack_name}'...")
 
 
-def wait_for_stack_completion(stack_name: str) -> None:
+def wait_for_stack_deletion(stack_name: str) -> None:
     cloudformation = boto3.client('cloudformation')
-    waiter = cloudformation.get_waiter('stack_delete_complete')
+    response = cloudformation.describe_stacks(StackName = stack_name)
+    stack_id = response['Stacks'][0]['StackId']
     try:
-        waiter.wait(StackName = stack_name)
+        waiter = cloudformation.get_waiter('stack_delete_complete')
+        waiter.wait(StackName = stack_id)
         print(f"Stack '{stack_name}' deleted successfully!")
     except Exception as exc:
-        response = cloudformation.describe_stacks(StackName = stack_name)
+        response = cloudformation.describe_stacks(StackName = stack_id)
         status = response['Stacks'][0]['StackStatus']
         raise RuntimeError(f"ERROR: Stack '{stack_name}' deletion failed with status {status}!") from exc
 
@@ -36,4 +33,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     delete_stack(args.stack_name)
-    wait_for_stack_completion(args.stack_name)
+    wait_for_stack_deletion(args.stack_name)
