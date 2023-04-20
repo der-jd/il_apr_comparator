@@ -79,7 +79,7 @@ jobs:
           name: "Empty S3 bucket"
           command: |
             s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
-            aws s3 rm s3://$s3_bucket_name delete-content
+            aws s3 rm s3://$s3_bucket_name --recursive
       - run:
           name: "Upload code to S3"
           command: |
@@ -156,7 +156,7 @@ jobs:
           name: "Empty S3 bucket"
           command: |
             s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
-            aws s3 rm s3://$s3_bucket_name delete-content
+            aws s3 rm s3://$s3_bucket_name --recursive
       - run:
           name: "Delete stack for S3 bucket"
           command: ./aws/delete_stack.py --stack_name "il-apr-comparator-s3-bucket-stack"
