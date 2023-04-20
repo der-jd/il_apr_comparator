@@ -177,7 +177,9 @@ jobs:
 workflows:
   build-deploy:
     when:
-      not: << pipeline.parameters.create-base-infrastructure >>
+      and:
+        - not: << pipeline.parameters.create-base-infrastructure >>
+        - not: << pipeline.parameters.delete-base-infrastructure >>
     jobs:
       - lint-python-code
       - type-check-python-code
