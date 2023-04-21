@@ -22,7 +22,7 @@ def wait_for_stack_deletion(stack_name: str) -> None:
     except Exception as exc:
         response = cloudformation.describe_stacks(StackName = stack_id)
         status = response['Stacks'][0]['StackStatus']
-        raise RuntimeError(f"ERROR: Stack '{stack_name}' deletion failed with status {status}!") from exc
+        raise RuntimeError(f"ERROR: Deletion of stack '{stack_name}' failed with status {status}!") from exc
 
 
 if __name__ == '__main__':
