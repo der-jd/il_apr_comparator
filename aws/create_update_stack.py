@@ -6,7 +6,7 @@ import boto3
 from botocore.exceptions import ValidationError
 
 
-def stack_exists(stack_name: str) -> None:
+def stack_exists(stack_name: str) -> bool:
     cloudformation = boto3.client('cloudformation')
     try:
         cloudformation.describe_stacks(StackName = stack_name)
