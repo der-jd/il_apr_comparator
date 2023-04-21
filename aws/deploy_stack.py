@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 import subprocess
 
 import boto3
@@ -12,7 +11,6 @@ import boto3
 # in combination with the corresponding "--no-fail-on-empty-changeset" option.
 def deploy_stack(template_file: str, stack_name: str) -> None:
     print(f"Deploy stack '{stack_name}'...")
-    template_file = os.path.abspath(template_file)
     command = f"aws cloudformation deploy --template-file {template_file} --stack-name {stack_name} --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset"
     result = subprocess.run(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, check = False, text = True, shell = True)
     print(result.stdout, result.stderr)
