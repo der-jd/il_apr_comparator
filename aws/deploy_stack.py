@@ -14,7 +14,7 @@ def deploy_stack(template_file: str, stack_name: str) -> None:
     print(f"Deploy stack '{stack_name}'...")
     template_file = os.path.abspath(template_file)
     command = f"aws cloudformation deploy --template-file {template_file} --stack-name {stack_name} --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset"
-    result = subprocess.run(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, check = False, text = True)
+    result = subprocess.run(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, check = False, text = True, shell = True)
     print(result.stdout, result.stderr)
     if result.returncode != 0:
         cloudformation = boto3.client('cloudformation')
