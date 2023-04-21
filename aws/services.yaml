@@ -1,6 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description: Lambda function to compare Impermanent Loss to APR and corresponding IAM resources for execution.
+Description: Lambda function and other services to compare Impermanent Loss to APR.
+
+# TODO: add eventbridge https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-run-lambda-schedule.html
+# TODO: add ses
 
 Resources:
   # TODO: delete?
