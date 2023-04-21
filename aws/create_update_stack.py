@@ -3,6 +3,16 @@
 import argparse
 
 import boto3
+from botocore.exceptions import ValidationError
+
+
+def stack_exists(stack_name: str) -> None:
+    cloudformation = boto3.client('cloudformation')
+    try:
+        response = cloudformation.describe_stacks(StackName = stack_name)
+        return True
+    except ValidationError:
+        return False
 
 
 def update_stack(template_file: str, stack_name: str) -> None:
@@ -72,7 +82,7 @@ if __name__ == '__main__':
 
     if stack_exists(args.stack_name):
         update_stack(args.template, args.stack_name)
+        wait_for_stack_update(args.stack_name)
     else:
         create_stack(args.template, args.stack_name)
         wait_for_stack_creation(args.stack_name)
-
