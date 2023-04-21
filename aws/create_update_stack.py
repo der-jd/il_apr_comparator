@@ -3,7 +3,7 @@
 import argparse
 
 import boto3
-from botocore.exceptions import ValidationError
+from botocore.exceptions import ClientError
 
 
 def stack_exists(stack_name: str) -> bool:
@@ -11,7 +11,7 @@ def stack_exists(stack_name: str) -> bool:
     try:
         cloudformation.describe_stacks(StackName = stack_name)
         return True
-    except ValidationError:
+    except ClientError:
         return False
 
 
