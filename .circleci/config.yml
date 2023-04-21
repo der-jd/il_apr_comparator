@@ -25,7 +25,7 @@ jobs:
             pip install -r ./aws/requirements.txt
       - run:
           name: "Deploy stack for S3 bucket"
-          command: ./aws/create_stack.py --template "./aws/s3-lambda.yaml" --stack_name "il-apr-comparator-s3-bucket-stack"
+          command: ./aws/create_update_stack.py --template "./aws/s3-lambda.yaml" --stack_name "il-apr-comparator-s3-bucket-stack"
 
   lint-python-code:
     docker:
@@ -109,7 +109,7 @@ jobs:
           command: pip install -r ./aws/requirements.txt
       - run:
           name: "Create stack for services"
-          command: ./aws/create_stack.py --template "./aws/services.yaml" --stack_name "il-apr-comparator-stack"
+          command: ./aws/create_update_stack.py --template "./aws/services.yaml" --stack_name "il-apr-comparator-stack"
 
   delete-services:
     docker:
