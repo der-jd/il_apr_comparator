@@ -9,7 +9,7 @@ from botocore.exceptions import ValidationError
 def stack_exists(stack_name: str) -> None:
     cloudformation = boto3.client('cloudformation')
     try:
-        response = cloudformation.describe_stacks(StackName = stack_name)
+        cloudformation.describe_stacks(StackName = stack_name)
         return True
     except ValidationError:
         return False
