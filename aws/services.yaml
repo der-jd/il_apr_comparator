@@ -50,7 +50,7 @@ Resources:
       FunctionName: "il-apr-comparator"
       Description: "Calculate Impermanent Loss for a given cryptocurrency coin pair and compare it to the APR from Liquidity Mining on CakeDefi."
       Runtime: python3.9
-      Handler: deployment-package.lambda_handler
+      Handler: main.lambda_handler
       Code:
         S3Bucket: !ImportValue "il-apr-comparator:BucketName"
         S3Key: "deployment-package.zip"
