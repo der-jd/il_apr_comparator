@@ -90,20 +90,24 @@ jobs:
           name: "Zip dependencies"
           command: |
             pip install -r ./scripts/requirements.txt --target ./scripts/dependencies
-            zip -r deployment-package.zip ./scripts/dependencies
+            export commit_hash=$(git rev-parse HEAD)
+            zip -r deployment-package-commit-${commit_hash}.zip ./scripts/dependencies
       - run:
           name: "Zip code"
-          command: zip -r deployment-package.zip ./scripts
+          command: zip -r deployment-package-commit-${commit_hash}.zip ./scripts
       - run:
           name: "Empty S3 bucket"
           command: |
             s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
             aws s3 rm s3://$s3_bucket_name --recursive
       - run:
-          name: "Upload code to S3"
+          name: "Upload new deployment package to S3"
           command: |
             s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
-            aws s3 cp "deployment-package.zip" "s3://$s3_bucket_name"
+            aws s3 cp "deployment-package-commit-${commit_hash}.zip" "s3://$s3_bucket_name"
+      - run:
+          name: "Update S3Key in CloudFormation template"
+          command: sed -i "s/S3Key: \"deployment-package-commit-[a-fA-F0-9]\{40\}\.zip\"/S3Key: \"deployment-package-commit-${commit_hash}\.zip\"/" ./aws/services.yaml
 
   deploy-services:
     docker:

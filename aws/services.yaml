@@ -53,7 +53,8 @@ Resources:
       Handler: main.lambda_handler
       Code:
         S3Bucket: !ImportValue "il-apr-comparator:BucketName"
-        S3Key: "deployment-package.zip"
+        # The commit hash in the file name gets replaced with the actual hash inside the CI/CD pipeline.
+        S3Key: "deployment-package-commit-0000000000000000000000000000000000000000.zip"
       Role: !GetAtt LambdaExecutionRole.Arn
       Timeout: 12
       Tags:
