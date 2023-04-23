@@ -86,6 +86,12 @@ jobs:
           name: "Install zip"
           command: sudo apt-get install zip
       - run:
+          # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-create-package-with-dependency
+          name: "Zip dependencies"
+          command: |
+            pip install -r ./scripts/requirements.txt --target ./scripts/dependencies
+            zip -r deployment-package.zip ./scripts/dependencies
+      - run:
           name: "Zip code"
           command: zip -r deployment-package.zip ./scripts
       - run:
