@@ -28,6 +28,23 @@ Resources:
   #            - 'iam:GetAccountSummary'
   #          Resource: '*'
 
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: "il-apr-comparator"
+      Description: "Calculate Impermanent Loss for a given cryptocurrency coin pair and compare it to the APR from Liquidity Mining on CakeDefi."
+      Runtime: python3.9
+      Handler: main.lambda_handler
+      Code:
+        S3Bucket: !ImportValue "il-apr-comparator:BucketName"
+        # The commit hash in the file name gets replaced with the actual hash inside the CI/CD pipeline.
+        S3Key: !Join ["", ["deployment-package-commit-", !Ref CommitHash, ".zip"]]
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 12
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
+
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -45,23 +62,6 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
         - arn:aws:iam::aws:policy/AmazonSESFullAccess
         #- !Ref LambdaExecutionPolicy # TODO delete?
-      Tags:
-        - Key: "project"
-          Value: "il-apr-comparator"
-
-  LambdaFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: "il-apr-comparator"
-      Description: "Calculate Impermanent Loss for a given cryptocurrency coin pair and compare it to the APR from Liquidity Mining on CakeDefi."
-      Runtime: python3.9
-      Handler: main.lambda_handler
-      Code:
-        S3Bucket: !ImportValue "il-apr-comparator:BucketName"
-        # The commit hash in the file name gets replaced with the actual hash inside the CI/CD pipeline.
-        S3Key: !Join ["", ["deployment-package-commit-", !Ref CommitHash, ".zip"]]
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Timeout: 12
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
