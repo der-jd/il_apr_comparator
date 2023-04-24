@@ -36,14 +36,26 @@ Resources:
       Runtime: python3.9
       Handler: main.lambda_handler
       Code:
-        S3Bucket: !ImportValue "il-apr-comparator:BucketName"
-        # The commit hash in the file name gets replaced with the actual hash inside the CI/CD pipeline.
+        S3Bucket: !ImportValue "il-apr-comparator:LambdaBucketName"
         S3Key: !Join ["", ["deployment-package-commit-", !Ref CommitHash, ".zip"]]
+      Layers:
+        - !Ref LambdaDependenciesLayer
       Role: !GetAtt LambdaExecutionRole.Arn
       Timeout: 12
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
+
+  LambdaDependenciesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: il-apr-comparator-dependencies
+      Description: Dependencies for IL-APR-Comparator Lambda
+      Content:
+        S3Bucket: !ImportValue "il-apr-comparator:LambdaLayersBucketName"
+        S3Key: !Join ["", ["dependencies-layer-commit-", !Ref CommitHash, ".zip"]]
+      CompatibleRuntimes:
+        - python3.10
 
   LambdaExecutionRole:
     Type: AWS::IAM::Role

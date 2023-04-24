@@ -14,7 +14,7 @@ parameters:
 
 
 jobs:
-  deploy-s3-bucket:
+  deploy-s3-buckets:
     docker:
       - image: cimg/aws:2023.03
     steps:
@@ -24,8 +24,9 @@ jobs:
           command: |
             pip install -r ./aws/requirements.txt
       - run:
-          name: "Deploy stack for S3 bucket"
-          command: ./aws/deploy_stack.py --template "./aws/s3-lambda.yaml" --stack_name "il-apr-comparator-s3-bucket-stack"
+          name: "Deploy stack for S3 buckets"
+          command: |
+            ./aws/deploy_stack.py --template "./aws/s3-buckets.yaml" --stack_name "il-apr-comparator-s3-lambda-buckets-stack"
 
   lint-python-code:
     docker:
@@ -77,6 +78,42 @@ jobs:
               cfn-lint $file
             done
 
+  deploy-dependencies:
+    docker:
+      - image: cimg/aws:2023.03
+    steps:
+      - checkout
+      - run:
+          name: "Install zip"
+          command: sudo apt-get install zip
+      - run:
+          # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-create-package-with-dependency
+          # https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-compile
+          # https://dev.to/awscommunity-asean/creating-an-api-that-runs-selenium-via-aws-lambda-3ck3
+          name: "Install dependencies"
+          command: |
+            pip install -r ./scripts/requirements.txt --target ./dependencies/python/lib/python3.10/site-packages
+            mkdir ./chromium
+            cd ./chromium
+            curl -L https://github.com/adieuadieu/serverless-chrome/releases/download/v1.0.0-57/stable-headless-chromium-amazonlinux-2.zip > headless-chromium.zip
+            unzip headless-chromium.zip
+            rm headless-chromium.zip
+      - run:
+          name: "Zip dependencies"
+          command: |
+            echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
+            source "$BASH_ENV"
+            cd ./dependencies
+            zip -r ../dependencies-layer-commit-${commit_hash}.zip python/
+            cd ../chromium
+            zip -r ../dependencies-layer-commit-${commit_hash}.zip headless-chromium
+      - run:
+          name: "Upload dependencies layer to S3"
+          command: |
+            source "$BASH_ENV"
+            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda-layers/name" --query "Parameter.Value" --output text)
+            aws s3 cp "dependencies-layer-commit-${commit_hash}.zip" "s3://$s3_bucket_name"
+
   deploy-code:
     docker:
       - image: cimg/aws:2023.03
@@ -87,21 +124,14 @@ jobs:
           command: sudo apt-get install zip
       - run:
           # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-create-package-with-dependency
-          name: "Zip dependencies"
-          command: |
-            pip install -r ./scripts/requirements.txt --target ./dependencies
-            echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
-            source "$BASH_ENV"
-            cd ./dependencies
-            zip -r ../deployment-package-commit-${commit_hash}.zip *
-      - run:
           name: "Zip code"
           command: |
+            echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
             source "$BASH_ENV"
             cd ./scripts
             zip -r ../deployment-package-commit-${commit_hash}.zip *
       - run:
-          name: "Upload new deployment package to S3"
+          name: "Upload deployment package to S3"
           command: |
             source "$BASH_ENV"
             s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
@@ -133,7 +163,7 @@ jobs:
           name: "Delete stack for services"
           command: ./aws/delete_stack.py --stack_name "il-apr-comparator-stack"
 
-  delete-s3-bucket:
+  delete-s3-buckets:
     docker:
       - image: cimg/aws:2023.03
     steps:
@@ -142,13 +172,16 @@ jobs:
           name: "Install dependencies"
           command: pip install -r ./aws/requirements.txt
       - run:
-          name: "Empty S3 bucket"
+          name: "Empty S3 buckets"
           command: |
-            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
-            aws s3 rm s3://$s3_bucket_name --recursive
+            lambda_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
+            lambda_layers_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda-layers/name" --query "Parameter.Value" --output text)
+            aws s3 rm s3://$lambda_bucket_name --recursive
+            aws s3 rm s3://$lambda_layers_bucket_name --recursive
       - run:
-          name: "Delete stack for S3 bucket"
-          command: ./aws/delete_stack.py --stack_name "il-apr-comparator-s3-bucket-stack"
+          name: "Delete stack for S3 buckets"
+          command: |
+            ./aws/delete_stack.py --stack_name "il-apr-comparator-s3-lambda-buckets-stack"
 
 
 workflows:
@@ -162,14 +195,21 @@ workflows:
       - lint-python-code
       - type-check-python-code
       - lint-cloudformation-templates
+      - deploy-dependencies:
+          requires:
+            - deploy-s3-buckets
+            - lint-python-code
+            - type-check-python-code
+            - lint-cloudformation-templates
       - deploy-code:
           requires:
-            - deploy-s3-bucket
+            - deploy-s3-buckets
             - lint-python-code
             - type-check-python-code
             - lint-cloudformation-templates
       - deploy-services:
           requires:
+            - deploy-dependencies
             - deploy-code
 
   create-base-infrastructure:
@@ -181,6 +221,6 @@ workflows:
     when: << pipeline.parameters.delete-stacks >>
     jobs:
       - delete-services
-      - delete-s3-bucket:
+      - delete-s3-buckets:
           requires:
             - delete-services
