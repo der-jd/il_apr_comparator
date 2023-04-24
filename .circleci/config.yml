@@ -191,7 +191,7 @@ workflows:
         - not: << pipeline.parameters.create-base-infrastructure >>
         - not: << pipeline.parameters.delete-stacks >>
     jobs:
-      - deploy-s3-bucket
+      - deploy-s3-buckets
       - lint-python-code
       - type-check-python-code
       - lint-cloudformation-templates
@@ -215,7 +215,7 @@ workflows:
   create-base-infrastructure:
     when: << pipeline.parameters.create-base-infrastructure >>
     jobs:
-      - deploy-s3-bucket
+      - deploy-s3-buckets
 
   delete-stacks:
     when: << pipeline.parameters.delete-stacks >>
