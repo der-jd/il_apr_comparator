@@ -9,9 +9,20 @@ import boto3
 # This function should not fail on an empty changeset but instead just do nothing.
 # Therefor we need to use the AWS cli here because boto3 doesn't support the "deploy" command
 # in combination with the corresponding "--no-fail-on-empty-changeset" option.
-def deploy_stack(template_file: str, stack_name: str) -> None:
+def deploy_stack(template_file: str, stack_name: str, parameters: list[str]) -> None:
     print(f"Deploy stack '{stack_name}'...")
-    command = f"aws cloudformation deploy --template-file {template_file} --stack-name {stack_name} --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset"
+    if parameters:
+        parameter_option = f" --parameter-overrides {' '.join(args.parameters)}"
+    else:
+        parameter_option = ""
+    command = ''.join([
+        "aws cloudformation deploy",
+        f" --template-file {template_file}",
+        parameter_option,
+        f" --stack-name {stack_name}",
+        " --capabilities CAPABILITY_NAMED_IAM",
+        " --no-fail-on-empty-changeset"])
+    print(f"Run '{command}'...")
     result = subprocess.run(command, stdout = subprocess.PIPE, stderr = subprocess.PIPE, check = False, text = True, shell = True)
     print(result.stdout, result.stderr)
     if result.returncode != 0:
@@ -21,13 +32,18 @@ def deploy_stack(template_file: str, stack_name: str) -> None:
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description = "Create or update an AWS CloudFormation stack for a given template file and a stack name.")
+    parser = argparse.ArgumentParser(description = "Create or update an AWS CloudFormation stack for a given template file, a stack name and optional parameters.")
     parser.add_argument('-t', '--template',
                         help = "name/path of the template file",
                         required = True)
     parser.add_argument('-s', '--stack_name',
                         help = "name of the stack",
                         required = True)
+    parser.add_argument('-p', '--parameters',
+                        help = "parameters as key-value-pairs separated by space, e.g. 'key1=value1 key2=value2 ...'",
+                        nargs = '*',
+                        action = 'extend',
+                        required = False)
     args = parser.parse_args()
 
-    deploy_stack(args.template, args.stack_name)
+    deploy_stack(args.template, args.stack_name, args.parameters)

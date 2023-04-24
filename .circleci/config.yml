@@ -105,9 +105,6 @@ jobs:
           command: |
             s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
             aws s3 cp "deployment-package-commit-${commit_hash}.zip" "s3://$s3_bucket_name"
-      - run:
-          name: "Update S3Key in CloudFormation template"
-          command: sed -i "s/deployment-package-commit-[a-fA-F0-9]\{40\}\.zip/deployment-package-commit-${commit_hash}\.zip/" ./aws/services.yaml
 
   deploy-services:
     docker:
@@ -119,7 +116,9 @@ jobs:
           command: pip install -r ./aws/requirements.txt
       - run:
           name: "Deploy stack for services"
-          command: ./aws/deploy_stack.py --template "./aws/services.yaml" --stack_name "il-apr-comparator-stack"
+          command: |
+            commit_hash=$(git rev-parse HEAD)
+            ./aws/deploy_stack.py --template "./aws/services.yaml" --parameters CommitHash=${commit_hash} --stack_name "il-apr-comparator-stack"
 
   delete-services:
     docker:
