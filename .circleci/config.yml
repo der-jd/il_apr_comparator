@@ -94,7 +94,8 @@ jobs:
           command: |
             echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
             source "$BASH_ENV"
-            zip -r deployment-package-commit-${commit_hash}.zip ./scripts
+            cd ./scripts
+            zip -r ../deployment-package-commit-${commit_hash}.zip *
       - run:
           name: "Empty S3 bucket"
           command: |
