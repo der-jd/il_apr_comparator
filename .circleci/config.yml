@@ -101,11 +101,6 @@ jobs:
             cd ./scripts
             zip -r ../deployment-package-commit-${commit_hash}.zip *
       - run:
-          name: "Empty S3 bucket"
-          command: |
-            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
-            aws s3 rm s3://$s3_bucket_name --recursive
-      - run:
           name: "Upload new deployment package to S3"
           command: |
             source "$BASH_ENV"
