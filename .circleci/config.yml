@@ -107,7 +107,7 @@ jobs:
             aws s3 cp "deployment-package-commit-${commit_hash}.zip" "s3://$s3_bucket_name"
       - run:
           name: "Update S3Key in CloudFormation template"
-          command: sed -i "s/S3Key: \"deployment-package-commit-[a-fA-F0-9]\{40\}\.zip\"/S3Key: \"deployment-package-commit-${commit_hash}\.zip\"/" ./aws/services.yaml
+          command: sed -i "s/deployment-package-commit-[a-fA-F0-9]\{40\}\.zip/deployment-package-commit-${commit_hash}\.zip/" ./aws/services.yaml
 
   deploy-services:
     docker:
