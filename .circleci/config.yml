@@ -87,12 +87,16 @@ jobs:
           command: sudo apt-get install zip
       - run:
           # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-create-package-with-dependency
-          name: "Install dependencies for deployment package"
-          command: pip install -r ./scripts/requirements.txt --target ./scripts/dependencies
-      - run:
-          name: "Zip code and dependencies"
+          name: "Zip dependencies"
           command: |
+            pip install -r ./scripts/requirements.txt --target ./dependencies
             echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
+            source "$BASH_ENV"
+            cd ./dependencies
+            zip -r ../deployment-package-commit-${commit_hash}.zip *
+      - run:
+          name: "Zip code"
+          command: |
             source "$BASH_ENV"
             cd ./scripts
             zip -r ../deployment-package-commit-${commit_hash}.zip *
