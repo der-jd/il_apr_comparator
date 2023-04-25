@@ -11,23 +11,6 @@ Parameters:
     Description: "Hash value of the current git commit as identifier for the code deployment package."
 
 Resources:
-  # TODO: delete?
-  #AccessToSNSPolicy:
-  #  Type: AWS::IAM::ManagedPolicy
-  #  Properties:
-  #    ManagedPolicyName: !Join ["-", [!Ref AWS::Region, "il-apr-comparator-lambda-execution-role"]]
-  #    Description: "Policy for the execution of the corresponding Lambda function."
-  #    PolicyDocument:
-  #      Version: "2012-10-17"
-  #      Statement:
-  #        - Sid: AllowAccessToSNS
-  #          Effect: Allow
-  #          Action:
-  #            - 'iam:ListAccountAliases'
-  #            - 'iam:ListUsers'
-  #            - 'iam:GetAccountSummary'
-  #          Resource: '*'
-
   LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -73,7 +56,6 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole # For access to CloudWatch
         - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
         - arn:aws:iam::aws:policy/AmazonSESFullAccess
-        #- !Ref LambdaExecutionPolicy # TODO delete?
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
