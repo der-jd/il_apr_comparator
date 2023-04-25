@@ -92,7 +92,7 @@ jobs:
           # https://dev.to/awscommunity-asean/creating-an-api-that-runs-selenium-via-aws-lambda-3ck3
           name: "Install dependencies"
           command: |
-            pip install -r ./scripts/requirements.txt --target ./dependencies/python/lib/python3.10/site-packages
+            pip install -r ./scripts/requirements.txt --target ./dependencies/python
             mkdir ./chromium
             cd ./chromium
             curl -L https://github.com/adieuadieu/serverless-chrome/releases/download/v1.0.0-57/stable-headless-chromium-amazonlinux-2.zip > headless-chromium.zip
@@ -104,7 +104,7 @@ jobs:
             echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
             source "$BASH_ENV"
             cd ./dependencies
-            zip -r ../dependencies-layer-commit-${commit_hash}.zip python/
+            zip -r ../dependencies-layer-commit-${commit_hash}.zip *
             cd ../chromium
             zip -r ../dependencies-layer-commit-${commit_hash}.zip headless-chromium
       - run:
