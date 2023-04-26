@@ -4,9 +4,6 @@ import re
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.chrome.service import Service as ChromiumService
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
 
 
 URL_CAKEDEFI_LM = "https://app.cakedefi.com/liquidity-mining"
@@ -18,7 +15,7 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
     print(f"Search for APR of coin pair '{coin_pair[0]}-{coin_pair[1]}'")
     print(f"Get HTML content of {URL_CAKEDEFI_LM}...")
 
-    driver = webdriver.Chrome(service = ChromiumService(ChromeDriverManager(chrome_type = ChromeType.CHROMIUM).install()))
+    driver = webdriver.Chrome()
     driver.get(URL_CAKEDEFI_LM)
     try:
         seconds_to_wait_for_javascript_content = 5
