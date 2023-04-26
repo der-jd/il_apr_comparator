@@ -18,15 +18,15 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
     print(f"Search for APR of coin pair '{coin_pair[0]}-{coin_pair[1]}'")
     print(f"Get HTML content of {URL_CAKEDEFI_LM}...")
 
-    browser = webdriver.Chrome(service = ChromiumService(ChromeDriverManager(chrome_type = ChromeType.CHROMIUM).install()))
-    browser.get(URL_CAKEDEFI_LM)
+    driver = webdriver.Chrome(service = ChromiumService(ChromeDriverManager(chrome_type = ChromeType.CHROMIUM).install()))
+    driver.get(URL_CAKEDEFI_LM)
     try:
         seconds_to_wait_for_javascript_content = 5
         print(f"Wait {seconds_to_wait_for_javascript_content} seconds until Javascript content is loaded...")
-        WebDriverWait(browser, seconds_to_wait_for_javascript_content).until(time.sleep(seconds_to_wait_for_javascript_content + 3))
+        WebDriverWait(driver, seconds_to_wait_for_javascript_content).until(time.sleep(seconds_to_wait_for_javascript_content + 3))
     except Exception: # pylint: disable = broad-exception-caught
         print("Timeout/exception on purpose: wait time is over!")
-    html = browser.page_source
+    html = driver.page_source
 
     soup = BeautifulSoup(html, "lxml")
     coin_pair_blocks = soup.find_all('span', {'class': re.compile(REGEX_HTML_COIN_PAIR_BLOCK)})
