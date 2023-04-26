@@ -89,26 +89,21 @@ jobs:
       - run:
           # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-create-package-with-dependency
           # https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-compile
+          # https://chromedriver.chromium.org/getting-started
           # https://dev.to/awscommunity-asean/creating-an-api-that-runs-selenium-via-aws-lambda-3ck3
           name: "Install dependencies"
           command: |
             pip install -r ./scripts/requirements.txt --target ./dependencies/python
-            mkdir chromedriver
-            cd ./chromedriver
             curl -L https://chromedriver.storage.googleapis.com/113.0.5672.24/chromedriver_linux64.zip > chromedriver.zip
-            unzip chromedriver.zip
-            rm chromedriver.zip
+            unzip chromedriver.zip -d ./dependencies/bin
             curl -L https://github.com/adieuadieu/serverless-chrome/releases/download/v1.0.0-57/stable-headless-chromium-amazonlinux-2.zip > headless-chromium.zip
-            unzip headless-chromium.zip
-            rm headless-chromium.zip
+            unzip headless-chromium.zip -d ./dependencies/bin
       - run:
           name: "Zip dependencies"
           command: |
             echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
             source "$BASH_ENV"
             cd ./dependencies
-            zip -r ../dependencies-layer-commit-${commit_hash}.zip *
-            cd ../chromedriver
             zip -r ../dependencies-layer-commit-${commit_hash}.zip *
       - run:
           name: "Upload dependencies layer to S3"
