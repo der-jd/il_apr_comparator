@@ -1,5 +1,5 @@
-import time
 import re
+import time
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
