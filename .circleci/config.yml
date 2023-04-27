@@ -96,8 +96,7 @@ jobs:
             pip install -r ./scripts/requirements.txt --target ./dependencies/python
             curl -L https://chromedriver.storage.googleapis.com/113.0.5672.24/chromedriver_linux64.zip > chromedriver.zip
             unzip chromedriver.zip -d ./dependencies/bin
-            curl -L https://github.com/adieuadieu/serverless-chrome/releases/download/v1.0.0-57/stable-headless-chromium-amazonlinux-2.zip > headless-chromium.zip
-            unzip headless-chromium.zip -d ./dependencies/bin
+            sudo apt-get install chromium-browser
       - run:
           name: "Zip dependencies"
           command: |
