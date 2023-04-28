@@ -16,7 +16,7 @@ parameters:
 jobs:
   deploy-s3-buckets:
     docker:
-      - image: cimg/aws:2023.03
+      - image: cimg/aws:2023.04
     steps:
       - checkout
       - run:
@@ -30,7 +30,7 @@ jobs:
 
   lint-python-code:
     docker:
-      - image: cimg/python:3.11.2
+      - image: cimg/python:3.11
     steps:
       - checkout
       - run:
@@ -49,7 +49,7 @@ jobs:
 
   type-check-python-code:
     docker:
-      - image: cimg/python:3.11.2
+      - image: cimg/python:3.11
     steps:
       - checkout
       - run:
@@ -64,7 +64,7 @@ jobs:
 
   lint-cloudformation-templates:
     docker:
-      - image: cimg/python:3.11.2
+      - image: cimg/python:3.11
     steps:
       - checkout
       - run:
@@ -80,7 +80,7 @@ jobs:
 
   deploy-dependencies:
     docker:
-      - image: cimg/aws:2023.03
+      - image: cimg/aws:2023.04
     steps:
       - checkout
       - run:
@@ -113,7 +113,7 @@ jobs:
 
   deploy-code:
     docker:
-      - image: cimg/aws:2023.03
+      - image: cimg/aws:2023.04
     steps:
       - checkout
       - run:
@@ -136,7 +136,7 @@ jobs:
 
   deploy-services:
     docker:
-      - image: cimg/aws:2023.03
+      - image: cimg/aws:2023.04
     steps:
       - checkout
       - run:
@@ -150,7 +150,7 @@ jobs:
 
   delete-services:
     docker:
-      - image: cimg/aws:2023.03
+      - image: cimg/aws:2023.04
     steps:
       - checkout
       - run:
@@ -162,7 +162,7 @@ jobs:
 
   delete-s3-buckets:
     docker:
-      - image: cimg/aws:2023.03
+      - image: cimg/aws:2023.04
     steps:
       - checkout
       - run:
