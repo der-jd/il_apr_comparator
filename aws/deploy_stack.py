@@ -12,7 +12,7 @@ import boto3
 def deploy_stack(template_file: str, stack_name: str, parameters: list[str]) -> None:
     print(f"Deploy stack '{stack_name}'...")
     if parameters:
-        parameter_option = f" --parameter-overrides {' '.join(args.parameters)}"
+        parameter_option = f" --parameter-overrides {' '.join(parameters)}"
     else:
         parameter_option = ""
     command = ''.join([
