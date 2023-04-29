@@ -15,7 +15,11 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
     print(f"Search for APR of coin pair '{coin_pair[0]}-{coin_pair[1]}'")
     print(f"Get HTML content of {URL_CAKEDEFI_LM}...")
 
-    driver = webdriver.Chrome()
+    chrome_options = webdriver.chrome.Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    driver = webdriver.Chrome(chrome_options = chrome_options)
+
     driver.get(URL_CAKEDEFI_LM)
     try:
         seconds_to_wait_for_javascript_content = 5
