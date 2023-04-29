@@ -96,9 +96,13 @@ jobs:
           name: "Install dependencies"
           command: |
             pip install -r ./scripts/requirements.txt --target ./dependencies/python
+
+            #sudo apt-get install chromium-browser
+            wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+            sudo apt-get install google-chrome-stable_current_amd64.deb
+
             curl -L https://chromedriver.storage.googleapis.com/112.0.5615.49/chromedriver_linux64.zip > chromedriver.zip
             unzip chromedriver.zip -d ./dependencies/bin
-            sudo apt-get install chromium-browser
       - run:
           name: "Zip dependencies"
           command: |
