@@ -85,7 +85,9 @@ jobs:
       - checkout
       - run:
           name: "Install zip"
-          command: sudo apt-get install zip
+          command: |
+            sudo apt-get update
+            sudo apt-get install zip
       - run:
           # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-create-package-with-dependency
           # https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-compile
@@ -94,7 +96,7 @@ jobs:
           name: "Install dependencies"
           command: |
             pip install -r ./scripts/requirements.txt --target ./dependencies/python
-            curl -L https://chromedriver.storage.googleapis.com/113.0.5672.24/chromedriver_linux64.zip > chromedriver.zip
+            curl -L https://chromedriver.storage.googleapis.com/112.0.5615.49/chromedriver_linux64.zip > chromedriver.zip
             unzip chromedriver.zip -d ./dependencies/bin
             sudo apt-get install chromium-browser
       - run:
