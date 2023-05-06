@@ -19,7 +19,7 @@ def _deploy_stack(_args: argparse.Namespace) -> None:
         f" --stack-name {_args.stack_name}",
         " --capabilities CAPABILITY_NAMED_IAM",
         " --no-fail-on-empty-changeset",
-        f" --profile {_args.profile}",
+        _get_profile(_args.profile),
         _get_region_argument(_args.region)])
 
     print(f"Run '{command}'...")
@@ -42,6 +42,14 @@ def _get_parameter_argument(parameters: list[str], parameter_file: str) -> str:
     return parameter_argument
 
 
+def _get_profile(profile: str) -> str:
+    if profile:
+        profile_argument = f" --profile {profile}"
+    else:
+        profile_argument = ""
+    return profile_argument
+
+
 def _get_region_argument(region: str) -> str:
     if region:
         region_argument = f" --region {region}"
@@ -61,7 +69,7 @@ if __name__ == '__main__':
                         required = True)
     parser.add_argument('-pr', '--profile',
                         help = "name of the profile for AWS CLI",
-                        required = True)
+                        required = False)
     parser.add_argument('-r', '--region',
                         help = "name of the AWS region",
                         required = False)
