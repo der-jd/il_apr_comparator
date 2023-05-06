@@ -18,6 +18,8 @@ parameters:
 
 jobs:
   deploy-s3-buckets:
+    environment:
+      AWS_REGION: eu-central-1
     docker:
       - image: cimg/aws:2023.04
     steps:
@@ -28,7 +30,7 @@ jobs:
             pip install -r ./aws/requirements.txt
       - aws-cli/setup:
           role-arn: arn:aws:iam::336250545151:role/OIDC-role-il-apr-comparator-eu-central-1
-          aws-region: eu-central-1
+          aws-region: AWS_REGION
       - run:
           name: "Deploy stack for S3 buckets"
           command: |
