@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  aws-cli: circleci/aws-cli@3.1
+
 
 parameters:
   create-base-infrastructure:
@@ -23,6 +26,9 @@ jobs:
           name: "Install dependencies"
           command: |
             pip install -r ./aws/requirements.txt
+      - aws-cli/setup:
+          role-arn: arn:aws:iam::336250545151:role/OIDC-role-il-apr-comparator-eu-central-1
+          aws-region: eu-central-1
       - run:
           name: "Deploy stack for S3 buckets"
           command: |
