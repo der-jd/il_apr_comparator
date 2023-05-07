@@ -98,7 +98,7 @@ jobs:
             chmod +x ./hadolint
       - run:
           name: "Lint Dockerfile"
-          command: hadolint Dockerfile
+          command: ./hadolint Dockerfile
 
   deploy-dependencies:
     docker:
