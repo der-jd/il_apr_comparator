@@ -86,6 +86,20 @@ jobs:
               cfn-lint $file
             done
 
+  lint-dockerfile:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - run:
+          name: "Install hadolint"
+          command: |
+            curl --location --output ./hadolint "https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64"
+            chmod +x ./hadolint
+      - run:
+          name: "Lint Dockerfile"
+          command: hadolint Dockerfile
+
   deploy-dependencies:
     docker:
       - image: cimg/aws:2023.04
@@ -207,18 +221,21 @@ workflows:
       - lint-python-code
       - type-check-python-code
       - lint-cloudformation-templates
+      - lint-dockerfile
       - deploy-dependencies:
           requires:
             - deploy-s3-buckets
             - lint-python-code
             - type-check-python-code
             - lint-cloudformation-templates
+            - lint-dockerfile
       - deploy-code:
           requires:
             - deploy-s3-buckets
             - lint-python-code
             - type-check-python-code
             - lint-cloudformation-templates
+            - lint-dockerfile
       - deploy-services:
           requires:
             - deploy-dependencies
