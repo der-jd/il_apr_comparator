@@ -43,7 +43,7 @@ jobs:
       - checkout
       - run:
           name: "Install dependencies"
-          command: pip install -r ./scripts/requirements.txt
+          command: pip install -r ./app/requirements.txt
       - run:
           name: "Install pylint"
           command: pip install pylint
@@ -62,7 +62,7 @@ jobs:
       - checkout
       - run:
           name: "Install dependencies"
-          command: pip install -r ./scripts/requirements.txt
+          command: pip install -r ./app/requirements.txt
       - run:
           name: "Install pyright"
           command: pip install pyright
@@ -103,7 +103,7 @@ jobs:
           # https://dev.to/awscommunity-asean/creating-an-api-that-runs-selenium-via-aws-lambda-3ck3
           name: "Install dependencies"
           command: |
-            pip install -r ./scripts/requirements.txt --target ./dependencies/python
+            pip install -r ./app/requirements.txt --target ./dependencies/python
 
             #sudo apt-get install chromium-browser
             wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -140,7 +140,7 @@ jobs:
           command: |
             echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
             source "$BASH_ENV"
-            cd ./scripts
+            cd ./app
             zip -r ../deployment-package-commit-${commit_hash}.zip *
       - run:
           name: "Upload deployment package to S3"
