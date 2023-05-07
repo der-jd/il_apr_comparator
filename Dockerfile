@@ -33,4 +33,4 @@ RUN latest_release=$(curl -L https://chromedriver.storage.googleapis.com/LATEST_
 # Run container as non-root system user
 USER docker
 
-#CMD ["python3", "main.py"]
+CMD ["python3", "main.py"]
