@@ -16,14 +16,16 @@ RUN apt-get update &&\
 
 # Install latest stable version of Google Chrome
 RUN curl --location --remote-name  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb &&\
-    apt-get install ./google-chrome-stable_current_amd64.deb --assume-yes
+    apt-get install ./google-chrome-stable_current_amd64.deb --assume-yes &&\
+    rm ./google-chrome-stable_current_amd64.deb
 
 # Install latest stable version of ChromeDriver
 # https://chromedriver.chromium.org/getting-started
 # https://chromedriver.chromium.org/downloads/version-selection
 RUN latest_release=$(curl -L https://chromedriver.storage.googleapis.com/LATEST_RELEASE) &&\
     curl --location https://chromedriver.storage.googleapis.com/$latest_release/chromedriver_linux64.zip > chromedriver.zip &&\
-    unzip chromedriver.zip -d /usr/local/bin
+    unzip chromedriver.zip -d /usr/local/bin &&\
+    rm chromedriver.zip
 
 # Run container as non-root system user
 USER docker
