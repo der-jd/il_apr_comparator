@@ -1,10 +1,13 @@
 FROM python:3.11.3
 
 # Add non-root system user
-RUN useradd --system docker
+RUN groupadd --system docker &&\
+    useradd --gid docker --system docker
 
 # Create working directory for image and cd into it
 WORKDIR /app
+
+RUN chown --recursive docker:docker /app
 
 COPY ./app .
 
