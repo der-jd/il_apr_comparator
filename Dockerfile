@@ -11,18 +11,23 @@ COPY ./app .
 
 RUN chown --recursive docker:docker /app
 
-RUN pip install --no-cache-dir --upgrade pip &&\
-    pip install --no-cache-dir -r requirements.txt
+# Ignore info concerning multiple consecutive 'RUN' instructions
+# hadolint ignore = DL3059
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Upgrade packages and remove package lists afterwards to save space
+# Ignore info concerning deletion of apt-get lists.
+# The lists are necessary for the installation of Chrome and will be removed afterwards (see below).
+# hadolint ignore = DL3009
 RUN apt-get update &&\
-    apt-get upgrade --assume-yes &&\
-    rm /var/lib/apt/lists/*
+    apt-get upgrade --assume-yes
 
 # Install latest stable version of Google Chrome
 RUN curl --location --remote-name  "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" &&\
     apt-get install --no-install-recommends ./google-chrome-stable_current_amd64.deb --assume-yes &&\
     rm ./google-chrome-stable_current_amd64.deb
+
+# Remove apt-get package lists to save space
+RUN rm --recursive /var/lib/apt/lists/*
 
 # Install latest stable version of ChromeDriver
 # https://chromedriver.chromium.org/getting-started
