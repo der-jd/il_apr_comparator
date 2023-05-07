@@ -7,9 +7,9 @@ RUN groupadd --system docker &&\
 # Create working directory for image and cd into it
 WORKDIR /app
 
-RUN chown --recursive docker:docker /app
-
 COPY ./app .
+
+RUN chown --recursive docker:docker /app
 
 RUN pip install --no-cache-dir --upgrade pip &&\
     pip install --no-cache-dir -r requirements.txt
