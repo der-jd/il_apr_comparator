@@ -17,7 +17,7 @@ parameters:
 
 
 jobs:
-  deploy-s3-buckets:
+  deploy-ecr-repo:
     environment:
       AWS_REGION: eu-central-1
     docker:
@@ -32,9 +32,9 @@ jobs:
           role-arn: arn:aws:iam::336250545151:role/OIDC-role-il-apr-comparator-eu-central-1
           aws-region: AWS_REGION
       - run:
-          name: "Deploy stack for S3 buckets"
+          name: "Deploy stack for ECR"
           command: |
-            ./aws/deploy_stack.py --template "./aws/s3-buckets.yaml" --stack_name "il-apr-comparator-s3-lambda-buckets-stack"
+            ./aws/deploy_stack.py --template "./aws/ecr.yaml" --stack_name "il-apr-comparator-ecr-repo"
 
   lint-python-code:
     docker:
@@ -92,68 +92,33 @@ jobs:
           name: "Lint Dockerfile"
           command: make hadolint
 
-  deploy-dependencies:
+  build-image:
+    docker:
+      - image: cimg/base:2023.05
+    steps:
+      - checkout
+      - run:
+          name: "Build Docker image"
+          command: make build
+
+  upload-image:
+    environment:
+      AWS_REGION: eu-central-1
     docker:
       - image: cimg/aws:2023.04
     steps:
       - checkout
+      - aws-cli/setup:
+          role-arn: arn:aws:iam::336250545151:role/OIDC-role-il-apr-comparator-eu-central-1
+          aws-region: AWS_REGION
       - run:
-          name: "Install zip"
+          name: "Upload image to ECR"
           command: |
-            sudo apt-get update
-            sudo apt-get install zip
-      - run:
-          # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-create-package-with-dependency
-          # https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-compile
-          # https://chromedriver.chromium.org/getting-started
-          # https://dev.to/awscommunity-asean/creating-an-api-that-runs-selenium-via-aws-lambda-3ck3
-          name: "Install dependencies"
-          command: |
-            pip install -r ./app/requirements.txt --target ./dependencies/python
-
-            #sudo apt-get install chromium-browser
-            wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-            #sudo apt-get install ./google-chrome-stable_current_amd64.deb
-            dpkg-deb --instdir=./dependencies/bin
-
-            curl -L https://chromedriver.storage.googleapis.com/112.0.5615.49/chromedriver_linux64.zip > chromedriver.zip
-            unzip chromedriver.zip -d ./dependencies/bin
-      - run:
-          name: "Zip dependencies"
-          command: |
-            echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
-            source "$BASH_ENV"
-            cd ./dependencies
-            zip -r ../dependencies-layer-commit-${commit_hash}.zip *
-      - run:
-          name: "Upload dependencies layer to S3"
-          command: |
-            source "$BASH_ENV"
-            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda-layers/name" --query "Parameter.Value" --output text)
-            aws s3 cp "dependencies-layer-commit-${commit_hash}.zip" "s3://$s3_bucket_name"
-
-  deploy-code:
-    docker:
-      - image: cimg/aws:2023.04
-    steps:
-      - checkout
-      - run:
-          name: "Install zip"
-          command: sudo apt-get install zip
-      - run:
-          # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-create-package-with-dependency
-          name: "Zip code"
-          command: |
-            echo "export commit_hash=$(git rev-parse HEAD)" >> "$BASH_ENV"
-            source "$BASH_ENV"
-            cd ./app
-            zip -r ../deployment-package-commit-${commit_hash}.zip *
-      - run:
-          name: "Upload deployment package to S3"
-          command: |
-            source "$BASH_ENV"
-            s3_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
-            aws s3 cp "deployment-package-commit-${commit_hash}.zip" "s3://$s3_bucket_name"
+            # TODO
+            #commit_hash=$(git rev-parse HEAD)
+            #docker tag $commit_hash $ecr_path:$commit_hash
+            #docker push $ecr_path:latest
+            #docker push $ecr_path:$commit_hash
 
   deploy-services:
     docker:
@@ -166,8 +131,9 @@ jobs:
       - run:
           name: "Deploy stack for services"
           command: |
-            commit_hash=$(git rev-parse HEAD)
-            ./aws/deploy_stack.py --template "./aws/services.yaml" --parameters CommitHash=${commit_hash} --stack_name "il-apr-comparator-stack"
+            # TODO
+            #image_uri=...
+            #./aws/deploy_stack.py --template "./aws/services.yaml" --parameters ImageURI=${image_uri} --stack_name "il-apr-comparator"
 
   delete-services:
     docker:
@@ -179,9 +145,9 @@ jobs:
           command: pip install -r ./aws/requirements.txt
       - run:
           name: "Delete stack for services"
-          command: ./aws/delete_stack.py --stack_name "il-apr-comparator-stack"
+          command: ./aws/delete_stack.py --stack_name "il-apr-comparator"
 
-  delete-s3-buckets:
+  delete-ecr-repo:
     docker:
       - image: cimg/aws:2023.04
     steps:
@@ -190,16 +156,8 @@ jobs:
           name: "Install dependencies"
           command: pip install -r ./aws/requirements.txt
       - run:
-          name: "Empty S3 buckets"
-          command: |
-            lambda_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda/name" --query "Parameter.Value" --output text)
-            lambda_layers_bucket_name=$(aws ssm get-parameter --name "/il-apr-comparator/s3-bucket-lambda-layers/name" --query "Parameter.Value" --output text)
-            aws s3 rm s3://$lambda_bucket_name --recursive
-            aws s3 rm s3://$lambda_layers_bucket_name --recursive
-      - run:
-          name: "Delete stack for S3 buckets"
-          command: |
-            ./aws/delete_stack.py --stack_name "il-apr-comparator-s3-lambda-buckets-stack"
+          name: "Delete stack for services"
+          command: ./aws/delete_stack.py --stack_name "il-apr-comparator-ecr-repo"
 
 
 workflows:
@@ -209,39 +167,32 @@ workflows:
         - not: << pipeline.parameters.create-base-infrastructure >>
         - not: << pipeline.parameters.delete-stacks >>
     jobs:
-      - deploy-s3-buckets
       - lint-python-code
       - type-check-python-code
       - lint-cloudformation-templates
       - lint-dockerfile
-      - deploy-dependencies:
+      - build-image:
           requires:
-            - deploy-s3-buckets
             - lint-python-code
             - type-check-python-code
             - lint-cloudformation-templates
             - lint-dockerfile
-      - deploy-code:
+      - upload-image:
           requires:
-            - deploy-s3-buckets
-            - lint-python-code
-            - type-check-python-code
-            - lint-cloudformation-templates
-            - lint-dockerfile
+            - build-image
       - deploy-services:
           requires:
-            - deploy-dependencies
-            - deploy-code
+            - upload-image
 
   create-base-infrastructure:
     when: << pipeline.parameters.create-base-infrastructure >>
     jobs:
-      - deploy-s3-buckets
+      - deploy-ecr-repo
 
   delete-stacks:
     when: << pipeline.parameters.delete-stacks >>
     jobs:
       - delete-services
-      - delete-s3-buckets:
+      - delete-ecr-repo:
           requires:
             - delete-services
