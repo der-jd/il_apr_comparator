@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: ECR repository for the Docker images
+
+Resources:
+  ECRRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      ImageTagMutability: MUTABLE
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
+
+  ECRRepoNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: "/il-apr-comparator/ecr-repo/name"
+      Description: "Name of the ECR repository which stores the Docker images for the Lambda function. Param is consumed in the CircleCI pipeline."
+      Type: String
+      Value: !Ref ECRRepo
+      Tags:
+        project: il-apr-comparator
+
+
+Outputs:
+  ECRRepoName:
+    Description: "Name"
+    Value: !Ref ECRRepo
+    Export:
+      Name: "il-apr-comparator:ECR-repo-name"
