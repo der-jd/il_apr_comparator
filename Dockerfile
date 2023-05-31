@@ -1,4 +1,4 @@
-# Use of custom base image for AWS Lambda:
+# Use of a custom base image for AWS Lambda:
 # https://docs.aws.amazon.com/lambda/latest/dg/python-image.html#python-image-create-alt
 # https://github.com/aws/aws-lambda-python-runtime-interface-client/
 FROM python:3.11.3
@@ -14,17 +14,19 @@ COPY ./app .
 
 RUN chown --recursive docker:docker /app
 
-# Ignore info concerning multiple consecutive 'RUN' instructions
-# hadolint ignore = DL3059
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Ignore info concerning deletion of apt-get lists.
+# Ignore info about deletion of apt-get lists.
 # The lists are necessary for the installation of Chrome and will be removed afterwards (see below).
 # hadolint ignore = DL3009
 RUN apt-get update &&\
     apt-get upgrade --assume-yes
 
-# Install aws-lambda-cpp build dependencies
+# Install aws-lambda-cpp build dependencies (this code is taken directly from the AWS documentation)
+# Ignore:
+#   - warning about unspecified package versions
+#   - info about potential installation of additional packages
+# hadolint ignore = DL3008, DL3015
 RUN apt-get install --assume-yes \
   g++ \
   make \
@@ -32,8 +34,10 @@ RUN apt-get install --assume-yes \
   unzip \
   libcurl4-openssl-dev
 
-# Install the runtime interface client
-RUN pip install --target /app awslambdaric
+# Install the runtime interface client (this code is taken directly from the AWS documentation)
+# Ignore warning about unspecified package versions
+# hadolint ignore = DL3013
+RUN pip install --no-cache-dir --target /app awslambdaric
 
 # Install latest stable version of Google Chrome
 RUN curl --location --remote-name  "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" &&\

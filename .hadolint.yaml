@@ -1,0 +1,2 @@
+ignored:
+  - DL3059 # Ignore info about multiple consecutive 'RUN' instructions
