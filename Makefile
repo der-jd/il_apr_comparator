@@ -17,3 +17,7 @@ lint-python:
 
 typecheck-python:
 	pyright
+
+build:
+	commit_hash=$$(git rev-parse HEAD)
+	docker build --tag $${commit_hash} .
