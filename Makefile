@@ -1,4 +1,4 @@
-lint: lint-cfn hadolint lint-python
+lint: lint-cfn hadolint lint-python typecheck-python
 
 lint-cfn:
 	for file in $$(find ./aws -name "*.yaml"); do \
