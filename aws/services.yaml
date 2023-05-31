@@ -6,39 +6,24 @@ Description: Lambda function and other services to compare Impermanent Loss to A
 # TODO: add ses
 
 Parameters:
-  CommitHash:
+  ImageURI:
     Type: String
-    Description: "Hash value of the current git commit as identifier for the code deployment package."
+    Description: "URI of the container image (ECR repo) for the Lambda function."
+
 
 Resources:
   LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: "il-apr-comparator"
       Description: "Calculate Impermanent Loss for a given cryptocurrency coin pair and compare it to the APR from Liquidity Mining on CakeDefi."
-      Runtime: python3.9
-      Handler: main.lambda_handler
       Code:
-        S3Bucket: !ImportValue "il-apr-comparator:LambdaBucketName"
-        S3Key: !Join ["", ["deployment-package-commit-", !Ref CommitHash, ".zip"]]
-      Layers:
-        - !Ref LambdaDependenciesLayer
+        ImageUri: !Ref ImageURI
+      PackageType: Image
       Role: !GetAtt LambdaExecutionRole.Arn
       Timeout: 12
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
-
-  LambdaDependenciesLayer:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      LayerName: il-apr-comparator-dependencies
-      Description: Dependencies for IL-APR-Comparator Lambda
-      Content:
-        S3Bucket: !ImportValue "il-apr-comparator:LambdaLayersBucketName"
-        S3Key: !Join ["", ["dependencies-layer-commit-", !Ref CommitHash, ".zip"]]
-      CompatibleRuntimes:
-        - python3.10
 
   LambdaExecutionRole:
     Type: AWS::IAM::Role
