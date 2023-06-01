@@ -19,16 +19,16 @@ parameters:
 jobs:
   deploy-ecr-repo:
     docker:
-      - image: cimg/aws:2023.04
+      - image: cimg/aws:2023.05
     steps:
       - checkout
+      - aws-cli/setup:
+          role-arn: "$AWS_ROLE_ARN"
+          aws-region: AWS_REGION
       - run:
           name: "Install dependencies"
           command: |
             pip install -r ./aws/requirements.txt
-      - aws-cli/setup:
-          role-arn: "$AWS_ROLE_ARN"
-          aws-region: AWS_REGION
       - run:
           name: "Deploy stack for ECR"
           command: |
@@ -144,9 +144,12 @@ jobs:
 
   delete-services:
     docker:
-      - image: cimg/aws:2023.04
+      - image: cimg/aws:2023.05
     steps:
       - checkout
+      - aws-cli/setup:
+          role-arn: "$AWS_ROLE_ARN"
+          aws-region: AWS_REGION
       - run:
           name: "Install dependencies"
           command: pip install -r ./aws/requirements.txt
@@ -156,14 +159,25 @@ jobs:
 
   delete-ecr-repo:
     docker:
-      - image: cimg/aws:2023.04
+      - image: cimg/aws:2023.05
     steps:
       - checkout
+      - aws-cli/setup:
+          role-arn: "$AWS_ROLE_ARN"
+          aws-region: AWS_REGION
       - run:
           name: "Install dependencies"
           command: pip install -r ./aws/requirements.txt
       - run:
-          name: "Delete stack for services"
+          name: "Delete all images in repo"
+          command: |
+            repo_name=$(aws ssm get-parameter --name "/il-apr-comparator/ecr-repo/name" --query "Parameter.Value" --output text)
+            image_ids=$(aws ecr list-images --repository-name $repo_name --query 'imageIds[*]' --output json)
+            aws ecr batch-delete-image \
+              --repository-name $repo_name \
+              --image-ids "$image_ids"
+      - run:
+          name: "Delete stack for ECR repo"
           command: ./aws/delete_stack.py --stack_name "il-apr-comparator-ecr-repo"
 
 
