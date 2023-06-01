@@ -22,11 +22,3 @@ Resources:
       Value: !Ref ECRRepo
       Tags:
         project: il-apr-comparator
-
-
-Outputs:
-  ECRRepoName:
-    Description: "Name"
-    Value: !Ref ECRRepo
-    Export:
-      Name: "il-apr-comparator:ECR-repo-name"
