@@ -20,7 +20,7 @@ Resources:
         ImageUri: !Ref ImageURI
       PackageType: Image
       Role: !GetAtt LambdaExecutionRole.Arn
-      Timeout: 12
+      Timeout: 30
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
