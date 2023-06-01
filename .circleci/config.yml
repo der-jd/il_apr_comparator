@@ -18,8 +18,6 @@ parameters:
 
 jobs:
   deploy-ecr-repo:
-    environment:
-      AWS_REGION: eu-central-1
     docker:
       - image: cimg/aws:2023.04
     steps:
@@ -29,7 +27,7 @@ jobs:
           command: |
             pip install -r ./aws/requirements.txt
       - aws-cli/setup:
-          role-arn: arn:aws:iam::336250545151:role/OIDC-role-il-apr-comparator-eu-central-1
+          role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
       - run:
           name: "Deploy stack for ECR"
@@ -102,23 +100,24 @@ jobs:
           command: make build
 
   upload-image:
-    environment:
-      AWS_REGION: eu-central-1
     docker:
       - image: cimg/aws:2023.04
     steps:
       - checkout
       - aws-cli/setup:
-          role-arn: arn:aws:iam::336250545151:role/OIDC-role-il-apr-comparator-eu-central-1
+          role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
+      - run:
+          name: Authenticate to ECR
+          command: aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       - run:
           name: "Upload image to ECR"
           command: |
-            # TODO
-            #commit_hash=$(git rev-parse HEAD)
-            #docker tag $commit_hash $ecr_path:$commit_hash
-            #docker push $ecr_path:latest
-            #docker push $ecr_path:$commit_hash
+            repo_name=$(aws ssm get-parameter --name "/il-apr-comparator/ecr-repo/name" --query "Parameter.Value" --output text)
+            commit_hash=$(git rev-parse HEAD)
+            docker tag il-apr-comparator $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:$commit_hash
+            docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:latest
+            docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:$commit_hash
 
   deploy-services:
     docker:
@@ -131,9 +130,9 @@ jobs:
       - run:
           name: "Deploy stack for services"
           command: |
-            # TODO
-            #image_uri=...
-            #./aws/deploy_stack.py --template "./aws/services.yaml" --parameters ImageURI=${image_uri} --stack_name "il-apr-comparator"
+            repo_name=$(aws ssm get-parameter --name "/il-apr-comparator/ecr-repo/name" --query "Parameter.Value" --output text)
+            image_uri="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:latest"
+            ./aws/deploy_stack.py --template "./aws/services.yaml" --parameters ImageURI=${image_uri} --stack_name "il-apr-comparator"
 
   delete-services:
     docker:
