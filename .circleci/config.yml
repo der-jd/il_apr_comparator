@@ -119,6 +119,7 @@ jobs:
           command: |
             repo_name=$(aws ssm get-parameter --name "/il-apr-comparator/ecr-repo/name" --query "Parameter.Value" --output text)
             commit_hash=$(git rev-parse HEAD)
+            docker tag il-apr-comparator $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:latest
             docker tag il-apr-comparator $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:$commit_hash
             docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:latest
             docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:$commit_hash
