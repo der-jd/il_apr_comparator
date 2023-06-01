@@ -126,9 +126,12 @@ jobs:
 
   deploy-services:
     docker:
-      - image: cimg/aws:2023.04
+      - image: cimg/aws:2023.05
     steps:
       - checkout
+      - aws-cli/setup:
+          role-arn: "$AWS_ROLE_ARN"
+          aws-region: AWS_REGION
       - run:
           name: "Install dependencies"
           command: pip install -r ./aws/requirements.txt
