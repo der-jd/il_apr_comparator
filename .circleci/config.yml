@@ -22,17 +22,20 @@ jobs:
       - image: cimg/aws:2023.05
     steps:
       - checkout
+      - run:
+          name: "Clone repo for deployment scripts"
+          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 aws_cloudformation_scripts
       - aws-cli/setup:
           role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
       - run:
           name: "Install dependencies"
           command: |
-            pip install -r ./aws/requirements.txt
+            pip install -r ../aws_cloudformation_scripts/scripts/requirements.txt
       - run:
           name: "Deploy stack for ECR"
           command: |
-            ./aws/deploy_stack.py --template "./aws/ecr.yaml" --stack_name "il-apr-comparator-ecr-repo"
+            ../aws_cloudformation_scripts/scripts/deploy_stack.py --template "./cloudformation/ecr.yaml" --stack_name "il-apr-comparator-ecr-repo"
 
   lint-python-code:
     docker:
@@ -129,45 +132,54 @@ jobs:
       - image: cimg/aws:2023.05
     steps:
       - checkout
+      - run:
+          name: "Clone repo for deployment scripts"
+          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 aws_cloudformation_scripts
       - aws-cli/setup:
           role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
       - run:
           name: "Install dependencies"
-          command: pip install -r ./aws/requirements.txt
+          command: pip install -r ../aws_cloudformation_scripts/scripts/requirements.txt
       - run:
           name: "Deploy stack for services"
           command: |
             repo_name=$(aws ssm get-parameter --name "/il-apr-comparator/ecr-repo/name" --query "Parameter.Value" --output text)
             image_uri="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:latest"
-            ./aws/deploy_stack.py --template "./aws/services.yaml" --parameters ImageURI=${image_uri} --stack_name "il-apr-comparator"
+            ../aws_cloudformation_scripts/scripts/deploy_stack.py --template "./cloudformation/services.yaml" --parameters ImageURI=${image_uri} --stack_name "il-apr-comparator"
 
   delete-services:
     docker:
       - image: cimg/aws:2023.05
     steps:
       - checkout
+      - run:
+          name: "Clone repo for deployment scripts"
+          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 aws_cloudformation_scripts
       - aws-cli/setup:
           role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
       - run:
           name: "Install dependencies"
-          command: pip install -r ./aws/requirements.txt
+          command: pip install -r ../aws_cloudformation_scripts/scripts/requirements.txt
       - run:
           name: "Delete stack for services"
-          command: ./aws/delete_stack.py --stack_name "il-apr-comparator"
+          command: ../aws_cloudformation_scripts/scripts/delete_stack.py --stack_name "il-apr-comparator"
 
   delete-ecr-repo:
     docker:
       - image: cimg/aws:2023.05
     steps:
       - checkout
+      - run:
+          name: "Clone repo for deployment scripts"
+          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 aws_cloudformation_scripts
       - aws-cli/setup:
           role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
       - run:
           name: "Install dependencies"
-          command: pip install -r ./aws/requirements.txt
+          command: pip install -r ../aws_cloudformation_scripts/scripts/requirements.txt
       - run:
           name: "Delete all images in repo"
           command: |
@@ -178,7 +190,7 @@ jobs:
               --image-ids "$image_ids"
       - run:
           name: "Delete stack for ECR repo"
-          command: ./aws/delete_stack.py --stack_name "il-apr-comparator-ecr-repo"
+          command: ../aws_cloudformation_scripts/scripts/delete_stack.py --stack_name "il-apr-comparator-ecr-repo"
 
 
 workflows:
@@ -204,16 +216,20 @@ workflows:
       - deploy-services:
           requires:
             - upload-image
+          context: github
 
   create-base-infrastructure:
     when: << pipeline.parameters.create-base-infrastructure >>
     jobs:
-      - deploy-ecr-repo
+      - deploy-ecr-repo:
+          context: github
 
   delete-stacks:
     when: << pipeline.parameters.delete-stacks >>
     jobs:
-      - delete-services
+      - delete-services:
+          context: github
       - delete-ecr-repo:
           requires:
             - delete-services
+          context: github
