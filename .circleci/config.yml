@@ -24,7 +24,7 @@ jobs:
       - checkout
       - run:
           name: "Clone repo for deployment scripts"
-          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 aws_cloudformation_scripts
+          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 ../aws_cloudformation_scripts
       - aws-cli/setup:
           role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
@@ -134,7 +134,7 @@ jobs:
       - checkout
       - run:
           name: "Clone repo for deployment scripts"
-          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 aws_cloudformation_scripts
+          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 ../aws_cloudformation_scripts
       - aws-cli/setup:
           role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
@@ -155,7 +155,7 @@ jobs:
       - checkout
       - run:
           name: "Clone repo for deployment scripts"
-          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 aws_cloudformation_scripts
+          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 ../aws_cloudformation_scripts
       - aws-cli/setup:
           role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
@@ -173,7 +173,7 @@ jobs:
       - checkout
       - run:
           name: "Clone repo for deployment scripts"
-          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 aws_cloudformation_scripts
+          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 ../aws_cloudformation_scripts
       - aws-cli/setup:
           role-arn: "$AWS_ROLE_ARN"
           aws-region: AWS_REGION
