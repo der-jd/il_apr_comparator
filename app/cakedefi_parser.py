@@ -49,7 +49,7 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
             apr_block = b.find_next('div', {'class': re.compile(REGEX_HTML_APR_BLOCK)})
 
             if re.match("APR[0-9]?", apr_block.get_text().strip()): # 'match' checks for a match only at the beginning of the string
-                match_obj = re.search(r"[0-9]+\.[0-9]+", apr_block.get_text().strip())
+                match_obj = re.search(r"[0-9]+\.?[0-9]*", apr_block.get_text().strip())
                 if match_obj:
                     return float(match_obj.group(0))
                 raise RuntimeError(f"ERROR: Value for APR of coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
