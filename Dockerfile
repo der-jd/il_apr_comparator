@@ -12,6 +12,8 @@ WORKDIR /app
 
 COPY ./app .
 
+RUN chown --recursive docker:docker /app
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Ignore info about deletion of apt-get lists.
@@ -37,8 +39,6 @@ RUN apt-get install --assume-yes \
 # hadolint ignore = DL3013
 RUN pip install --no-cache-dir --target /app awslambdaric
 
-RUN chown --recursive docker:docker /app
-
 # Install latest stable version of Google Chrome
 RUN curl --location --remote-name  "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb" &&\
     apt-get install --assume-yes --no-install-recommends ./google-chrome-stable_current_amd64.deb &&\
@@ -53,7 +53,6 @@ RUN rm --recursive /var/lib/apt/lists/*
 RUN latest_release=$(curl -L "https://chromedriver.storage.googleapis.com/LATEST_RELEASE") &&\
     curl --location "https://chromedriver.storage.googleapis.com/$latest_release/chromedriver_linux64.zip" > chromedriver.zip &&\
     unzip chromedriver.zip -d /usr/local/bin &&\
-    chown docker:docker /usr/local/bin/chromedriver &&\
     rm chromedriver.zip
 
 # Run container as non-root system user
