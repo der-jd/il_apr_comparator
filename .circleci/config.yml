@@ -145,7 +145,8 @@ jobs:
           name: "Deploy stack for services"
           command: |
             repo_name=$(aws ssm get-parameter --name "/il-apr-comparator/ecr-repo/name" --query "Parameter.Value" --output text)
-            image_uri="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:latest"
+            commit_hash=$(git rev-parse HEAD)
+            image_uri="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$repo_name:$commit_hash"
             ../aws_cloudformation_scripts/scripts/deploy_stack.py --template "./cloudformation/services.yaml" --parameters ImageURI=${image_uri} --stack_name "il-apr-comparator"
 
   delete-services:
