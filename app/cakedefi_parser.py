@@ -20,7 +20,6 @@ def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
     # Notice: Running Chrome without sandboxing is not best-practice!
     # Unfortunately I didn't find any solution to run Chrome with sandboxing in a Docker container.
     chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.headless = True
     driver = webdriver.Chrome(options = chrome_options)
 
