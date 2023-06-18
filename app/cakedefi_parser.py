@@ -1,59 +1,92 @@
-import re
 import time
 
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.chrome.options import Options as ChromeOptions
+import requests
 
+import aws
+
+# Scrape CakeDefi with https://www.browse.ai/
 
 URL_CAKEDEFI_LM = "https://app.cakedefi.com/liquidity-mining"
-REGEX_HTML_COIN_PAIR_BLOCK = ".*coinTextMedium.*"
-REGEX_HTML_APR_BLOCK = ".*tableCellLeft.*tableCell.*"
+COIN_PAIRS_MAX_NUMBER_OF_ROWS = 10
+ROBOT_LIST_NAME = "Coin_Pairs_LM_APR"
+ROBOT_LIST_NAME_COINPAIR_COLUMN = "coin_pair"
+API_BASE_URL = "https://api.browse.ai/v2" # API docu: https://www.browse.ai/docs/api/v2
 
 
-def get_apr_from_cakedefi(coin_pair: tuple[str, str]) -> float:
-    print(f"Search for APR of coin pair '{coin_pair[0]}-{coin_pair[1]}'")
-    print(f"Get HTML content of {URL_CAKEDEFI_LM}...")
+def get_aprs_from_cakedefi() -> list[dict]:
+    print("Use browse.ai to get the APR values from CakeDefi...")
+    data = _run_robot()
+    data = _retrieve_task(data['id'])
 
-    chrome_options = ChromeOptions()
-    # Notice: Running Chrome without sandboxing is not best-practice!
-    # Unfortunately I didn't find any solution to run Chrome with sandboxing in a Docker container.
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.headless = True
-    driver = webdriver.Chrome(options = chrome_options)
+    result = []
+    for pair in data['result']['capturedLists'][ROBOT_LIST_NAME]:
+        symbols = pair[ROBOT_LIST_NAME_COINPAIR_COLUMN].split('-')
+        result.append({
+            "symbols": pair[ROBOT_LIST_NAME_COINPAIR_COLUMN],
+            "coin_1": {
+                "id": "",
+                "symbol": symbols[0],
+                "name": ""
+            },
+            "coin_2": {
+                "id": "",
+                "symbol": symbols[1],
+                "name": ""
+            },
+            "apr": pair['apr'][:-1] # remove the last character (% sign)
+        })
+    return result
 
-    driver.get(URL_CAKEDEFI_LM)
+
+def _run_robot() -> dict:
+    print("Run the robot for scraping the CakeDefi Liquidity mining website...")
+
+    robot_id = aws.get_parameter_value("/browse-ai/robot-id")
+    api_key = aws.get_parameter_value("/browse-ai/api-key")
+    url = f"{API_BASE_URL}/robots/{robot_id}/tasks"
+    headers = {
+        "Authorization": f"Bearer {api_key}"
+    }
+    data = {
+        "inputParameters": {
+            "originUrl": URL_CAKEDEFI_LM,
+            "coin_pairs_lm_apr_limit": COIN_PAIRS_MAX_NUMBER_OF_ROWS
+        }
+    }
+
+    print(f"Call {url}...")
     try:
-        seconds_to_wait_for_javascript_content = 5
-        print(f"Wait {seconds_to_wait_for_javascript_content} seconds until Javascript content is loaded...")
-        WebDriverWait(driver, seconds_to_wait_for_javascript_content).until(time.sleep(seconds_to_wait_for_javascript_content + 3))
-    except Exception: # pylint: disable = broad-exception-caught
-        print("Timeout/exception on purpose: wait time is over!")
-    html = driver.page_source
+        response = requests.post(url, headers = headers, data = data, timeout = 10)
+        response.raise_for_status()
+    except (requests.exceptions.RequestException, ValueError) as err:
+        raise RuntimeError(f"ERROR: API call to start browse.ai robot failed!\n{str(err)}") from err
 
-    soup = BeautifulSoup(html, "lxml")
-    coin_pair_blocks = soup.find_all('span', {'class': re.compile(REGEX_HTML_COIN_PAIR_BLOCK)})
-    print(f"Found coin pairs:\n{[p.get_text().strip() for p in coin_pair_blocks]}")
+    return response.json()
 
-    if not coin_pair_blocks:
-        raise RuntimeError("ERROR: HTML tags which contain coin pairs not found!")
 
-    for b in coin_pair_blocks:
-        # Alternative if-pattern/-approach. Just for documentation.
-        # if b.find('span', {'class': re.compile(".*coinText.*")}, string = "BCH") and b.find('span', {'class': re.compile(".*coinText.*")}, string = "-DFI"):
-        if re.match(f"{coin_pair[0]}\n?-\n?{coin_pair[1]}", b.get_text().strip(), re.IGNORECASE) or \
-           re.match(f"{coin_pair[1]}\n?-\n?{coin_pair[0]}", b.get_text().strip(), re.IGNORECASE): # e.g. "BCH-DFI" or "DFI-BCH"
-            print(f"Requested coin pair '{coin_pair[0]}-{coin_pair[1]}' found!")
-            print("Search for corresponding APR...")
-            apr_block = b.find_next('div', {'class': re.compile(REGEX_HTML_APR_BLOCK)})
+def _retrieve_task(task_id: str) -> dict:
+    print("Wait until the task for scraping is finished...")
 
-            if re.match("APR[0-9]?", apr_block.get_text().strip()): # 'match' checks for a match only at the beginning of the string
-                match_obj = re.search(r"[0-9]+\.?[0-9]*", apr_block.get_text().strip())
-                if match_obj:
-                    return float(match_obj.group(0))
-                raise RuntimeError(f"ERROR: Value for APR of coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
+    robot_id = aws.get_parameter_value("/browse-ai/robot-id")
+    api_key = aws.get_parameter_value("/browse-ai/api-key")
+    url = f"{API_BASE_URL}/robots/{robot_id}/tasks/{task_id}"
+    headers = {
+        "Authorization": f"Bearer {api_key}"
+    }
 
-            raise RuntimeError(f"ERROR: APR of coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
+    while True:
+        print(f"Call {url}...")
+        try:
+            response = requests.get(url, headers = headers, timeout = 10)
+            response.raise_for_status()
+            data = response.json()
 
-    raise RuntimeError(f"ERROR: Coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
+            if data['status'] == "failed":
+                raise RuntimeError(f"ERROR: Task of the browse.ai robot failed!\n{response.status_code} {response.reason}")
+
+            if data['status'] == "successful":
+                return data
+        except (requests.exceptions.RequestException, ValueError) as err:
+            raise RuntimeError(f"ERROR: API call to retrieve task of the browse.ai robot failed!\n{str(err)}") from err
+
+        time.sleep(5)
