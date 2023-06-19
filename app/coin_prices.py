@@ -8,9 +8,10 @@ API_BASE_URL = "https://api.coingecko.com/api/v3"
 
 def add_coin_info_for_symbols(coin_pairs: list[dict]) -> list[dict]:
     print("Add coin info for symbols...")
+    supported_coins = _get_supported_coins()
     for pair in coin_pairs:
-        pair['coin_1'] = _find_matching_symbol(pair['coin_1'])
-        pair['coin_2'] = _find_matching_symbol(pair['coin_2'])
+        pair['coin_1'] = _find_matching_symbol(pair['coin_1'], supported_coins)
+        pair['coin_2'] = _find_matching_symbol(pair['coin_2'], supported_coins)
 
     return coin_pairs
 
@@ -121,8 +122,7 @@ def _get_historical_coin_price(coin_id: str, datetime_utc: datetime.datetime) ->
     return response.json()
 
 
-def _find_matching_symbol(coin: dict) -> dict:
-    supported_coins = _get_supported_coins()
+def _find_matching_symbol(coin: dict, supported_coins: list[dict]) -> dict:
     symbol_found = False
     for supp_coin in supported_coins:
         if coin['symbol'].lower() == supp_coin['symbol'].lower():
