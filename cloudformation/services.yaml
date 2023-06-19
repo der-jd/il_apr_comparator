@@ -20,7 +20,7 @@ Resources:
         ImageUri: !Ref ImageURI
       PackageType: Image
       Role: !GetAtt LambdaExecutionRole.Arn
-      Timeout: 30
+      Timeout: 600 # The browse.ai robot can run for quite some time
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
