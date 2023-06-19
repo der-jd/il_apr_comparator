@@ -35,8 +35,8 @@ def _main(number_of_days_for_comparison: int, currency = "eur") -> None:
         print(f">>>>>> Impermanent loss for {pair['symbols']} over the last {number_of_days_for_comparison} days: {round(_impermanent_loss, 3)} %")
 
 
-        print(f">>>>>> APR for Liquidity Pool {pair['symbols']}: {round(pair['apr'], 3)} %")
-        apr_per_days = pair['apr']/(365/number_of_days_for_comparison)
+        print(f">>>>>> APR for Liquidity Pool {pair['symbols']}: {round(float(pair['apr']), 3)} %")
+        apr_per_days = float(pair['apr'])/(365/number_of_days_for_comparison)
         print(f">>>>>> APR for Liquidity Pool {pair['symbols']} per {number_of_days_for_comparison} days: {round(apr_per_days, 3)} %")
 
         print("\n=============================")
