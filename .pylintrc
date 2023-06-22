@@ -2,7 +2,7 @@
 good-names = c, b # for loops
 
 [FORMAT]
-max-line-length = 180
+max-line-length = 200
 
 [MESSAGES CONTROL]
 disable =
