@@ -25,17 +25,17 @@ def get_apr() -> list[dict]:
     result = []
     for pair in data['result']['capturedLists'][ROBOT_LIST_NAME]:
         print(f"Found: {pair[ROBOT_LIST_NAME_COINPAIR_COLUMN]} - {pair['apr']}")
-        symbols = pair[ROBOT_LIST_NAME_COINPAIR_COLUMN].split('-')
+        symbols = pair[ROBOT_LIST_NAME_COINPAIR_COLUMN]
         result.append({
-            "symbols": pair[ROBOT_LIST_NAME_COINPAIR_COLUMN],
+            "symbols": symbols,
             "coin_1": {
                 "id": "",
-                "symbol": symbols[0],
+                "symbol": symbols.split('-')[0],
                 "name": ""
             },
             "coin_2": {
                 "id": "",
-                "symbol": symbols[1],
+                "symbol": symbols.split('-')[1],
                 "name": ""
             },
             "apr": pair['apr'][:-1] # remove the last character (% sign)
