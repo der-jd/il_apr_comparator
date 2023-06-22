@@ -35,11 +35,13 @@ import ai_scraping
 # ]
 def get_apr(scraping: str) -> list[dict]:
     print("Get APR for Liquidity Mining from Bake website...")
+
     if scraping == "classic":
         print("Use classic scraping to extract data...")
         return classic_scraping.get_apr()
-    elif scraping == "ai":
+
+    if scraping == "ai":
         print("Use artificial intelligence based scraping to extract data...")
         return ai_scraping.get_apr()
-    else:
-        raise RuntimeError(f"ERROR: Scraping method '{scraping}' unknown!")
+
+    raise RuntimeError(f"ERROR: Scraping method '{scraping}' unknown!")
