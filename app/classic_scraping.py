@@ -43,7 +43,8 @@ def get_apr() -> list[dict]:
 
     soup = BeautifulSoup(html, "lxml")
     block_with_cryptocurrencies = soup.find('div', {'class': re.compile(REGEX_HTML_COIN_PAIRS_BLOCK)})
-    coin_pair_blocks = block_with_cryptocurrencies.find_all('span', {'class': re.compile(REGEX_HTML_COIN_PAIR_BLOCK)})
+    # Ignore two pyright errors in the following line (don't know how to fix them).
+    coin_pair_blocks = block_with_cryptocurrencies.find_all('span', {'class': re.compile(REGEX_HTML_COIN_PAIR_BLOCK)}) # pyright: ignore [reportGeneralTypeIssues, reportOptionalMemberAccess]
     print(f"Found coin pairs:\n{[p.get_text().strip() for p in coin_pair_blocks]}")
 
     if not coin_pair_blocks:
