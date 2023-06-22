@@ -16,6 +16,56 @@ parameters:
     default: false
 
 
+workflows:
+  build-deploy:
+    when:
+      and:
+        - not: << pipeline.parameters.create-base-infrastructure >>
+        - not: << pipeline.parameters.delete-stacks >>
+    jobs:
+      - lint-python-code
+      - type-check-python-code
+      - lint-cloudformation-templates
+      - lint-dockerfile
+      - build-image:
+          requires:
+            - lint-python-code
+            - type-check-python-code
+            - lint-cloudformation-templates
+            - lint-dockerfile
+      - upload-image:
+          requires:
+            - build-image
+      - deploy-services:
+          requires:
+            - upload-image
+          context: github
+
+  create-base-infrastructure:
+    when: << pipeline.parameters.create-base-infrastructure >>
+    jobs:
+      - deploy-ecr-repo:
+          context: github
+      - deploy-browse-ai-api-keys:
+          context: github
+      - add-values-for-api-keys-in-aws:
+          type: approval
+          requires:
+            - deploy-browse-ai-api-keys
+
+  delete-stacks:
+    when: << pipeline.parameters.delete-stacks >>
+    jobs:
+      - delete-services:
+          context: github
+      - delete-browse-ai-api-keys:
+          context: github
+      - delete-ecr-repo:
+          requires:
+            - delete-services
+          context: github
+
+
 jobs:
   lint-python-code:
     docker:
@@ -230,53 +280,3 @@ jobs:
       - run:
           name: "Delete stack for API keys"
           command: ../aws_cloudformation_scripts/scripts/delete_stack.py --stack_name "il-apr-comparator-browse-ai-api-keys"
-
-
-workflows:
-  build-deploy:
-    when:
-      and:
-        - not: << pipeline.parameters.create-base-infrastructure >>
-        - not: << pipeline.parameters.delete-stacks >>
-    jobs:
-      - lint-python-code
-      - type-check-python-code
-      - lint-cloudformation-templates
-      - lint-dockerfile
-      - build-image:
-          requires:
-            - lint-python-code
-            - type-check-python-code
-            - lint-cloudformation-templates
-            - lint-dockerfile
-      - upload-image:
-          requires:
-            - build-image
-      - deploy-services:
-          requires:
-            - upload-image
-          context: github
-
-  create-base-infrastructure:
-    when: << pipeline.parameters.create-base-infrastructure >>
-    jobs:
-      - deploy-ecr-repo:
-          context: github
-      - deploy-browse-ai-api-keys:
-          context: github
-      - add-values-for-api-keys-in-aws:
-          type: approval
-          requires:
-            - deploy-browse-ai-api-keys
-
-  delete-stacks:
-    when: << pipeline.parameters.delete-stacks >>
-    jobs:
-      - delete-services:
-          context: github
-      - delete-browse-ai-api-keys:
-          context: github
-      - delete-ecr-repo:
-          requires:
-            - delete-services
-          context: github
