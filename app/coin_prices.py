@@ -126,8 +126,33 @@ def _find_matching_symbol(coin: dict, supported_coins: list[dict]) -> dict:
     symbol_found = False
     for supp_coin in supported_coins:
         if coin['symbol'].lower() == supp_coin['symbol'].lower():
-            if coin['symbol'].lower() == "dfi": # special case for 'dfi' as there are multiple ids for this symbol
+            # ATTENTION: Hardcoded assumptions about the available coin pairs on 'Bake' as there are multiple ids for the symbols from the website!
+            if coin['symbol'].lower() == "dfi": # special case for 'dfi'
                 if supp_coin['name'].lower() == "defichain":
+                    coin['id'] = supp_coin['id']
+                    coin['name'] = supp_coin['name']
+                    symbol_found = True
+                    break
+            elif coin['symbol'].lower() == "doge": # special case for 'doge'
+                if supp_coin['name'].lower() == "dogecoin":
+                    coin['id'] = supp_coin['id']
+                    coin['name'] = supp_coin['name']
+                    symbol_found = True
+                    break
+            elif coin['symbol'].lower() == "usdc": # special case for 'usdc'
+                if supp_coin['name'].lower() == "usd coin":
+                    coin['id'] = supp_coin['id']
+                    coin['name'] = supp_coin['name']
+                    symbol_found = True
+                    break
+            elif coin['symbol'].lower() == "bch": # special case for 'bch'
+                if supp_coin['name'].lower() == "bitcoin cash":
+                    coin['id'] = supp_coin['id']
+                    coin['name'] = supp_coin['name']
+                    symbol_found = True
+                    break
+            elif coin['symbol'].lower() == "ltc": # special case for 'ltc'
+                if supp_coin['name'].lower() == "litecoin":
                     coin['id'] = supp_coin['id']
                     coin['name'] = supp_coin['name']
                     symbol_found = True

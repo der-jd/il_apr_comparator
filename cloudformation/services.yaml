@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description: Lambda function and other services to compare Impermanent Loss to APR.
+Description: Lambda function to compare Impermanent Loss to APR.
+# TODO: The application does not run in AWS because none of the scraping methods for the APR works inside Lambda!
+# Check the corresponding source files for further information.
 
-# TODO: add eventbridge https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-run-lambda-schedule.html
-# TODO: add ses
 
 Parameters:
   ImageURI:
@@ -15,7 +15,7 @@ Resources:
   LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Description: "Calculate Impermanent Loss for a given cryptocurrency coin pair and compare it to the APR from Liquidity Mining on CakeDefi."
+      Description: "Calculate Impermanent Loss for a given cryptocurrency coin pair and compare it to the APR from Liquidity Mining on Bake."
       Code:
         ImageUri: !Ref ImageURI
       PackageType: Image
@@ -40,7 +40,6 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole # For access to CloudWatch
         - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
-        - arn:aws:iam::aws:policy/AmazonSESFullAccess
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"

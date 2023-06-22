@@ -2,7 +2,7 @@
 
 import datetime
 
-import cakedefi_parser
+import liquidity_mining_apr
 import coin_prices
 import impermanent_loss
 
@@ -11,12 +11,11 @@ def lambda_handler(event, context) -> None: # pylint: disable = unused-argument
     _main(number_of_days_for_comparison = 30, currency = "eur")
 
 
-# TODO: return comparison as json?! # pylint: disable = fixme
 # IMPORTANT: The tool displays some values with two decimals and truncates the rest. It does NOT round them in a mathematical sense!
 # I.e. 0.6775 --> 0.677 instead of the expected 0.678
 def _main(number_of_days_for_comparison: int, currency = "eur") -> None:
-    # Get APRs from Cake Defi
-    coin_pairs = cakedefi_parser.get_aprs_from_cakedefi()
+    # Get APRs for Liquidity mining
+    coin_pairs = liquidity_mining_apr.get_apr(scraping = "classic")
 
     # Get coin prices
     coin_pairs = coin_prices.add_coin_info_for_symbols(coin_pairs)
@@ -41,7 +40,6 @@ def _main(number_of_days_for_comparison: int, currency = "eur") -> None:
 
         print("\n=============================")
         print(f">>>>>> The Liquidity Mining yield for {pair['symbols']} per {number_of_days_for_comparison} days is: {round(apr_per_days - _impermanent_loss, 3)} %\n")
-        # TODO send mail via AWS SES # pylint: disable = fixme
 
 
 def _get_coin_ids(coin_pairs: list[dict]) -> set[str]:

@@ -1,23 +1,30 @@
+"""
+Scrape website with https://www.browse.ai/.
+
+ATTENTION:
+Robot is not reliable! Sometimes no result at all; sometimes result with empty table.
+"""
+
 import time
 
 import requests
 
 import aws
 
-# Scrape CakeDefi with https://www.browse.ai/
 
 ROBOT_LIST_NAME = "Coin_Pairs_LM_APR"
 ROBOT_LIST_NAME_COINPAIR_COLUMN = "coin_pair"
 API_BASE_URL = "https://api.browse.ai/v2" # API docu: https://www.browse.ai/docs/api/v2
 
 
-def get_aprs_from_cakedefi() -> list[dict]:
-    print("Use browse.ai to get the APR values from CakeDefi...")
+def get_apr() -> list[dict]:
+    print("Use web service browse.ai to get the APR values...")
     data = _run_robot()
     data = _retrieve_task(data['result']['id'])
 
     result = []
     for pair in data['result']['capturedLists'][ROBOT_LIST_NAME]:
+        print(f"Found: {pair[ROBOT_LIST_NAME_COINPAIR_COLUMN]} - {pair['apr']}")
         symbols = pair[ROBOT_LIST_NAME_COINPAIR_COLUMN].split('-')
         result.append({
             "symbols": pair[ROBOT_LIST_NAME_COINPAIR_COLUMN],
@@ -37,7 +44,7 @@ def get_aprs_from_cakedefi() -> list[dict]:
 
 
 def _run_robot() -> dict:
-    print("Run the robot for scraping the CakeDefi Liquidity mining website...")
+    print("Run the robot for scraping...")
 
     robot_id = aws.get_parameter_value("/browse-ai/robot-id")
     api_key = aws.get_parameter_value("/browse-ai/api-key")
