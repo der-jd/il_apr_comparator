@@ -11,3 +11,11 @@ This tool takes a pair of cryptocurrencies for a Liquidity Mining Pool on `Bake`
 - Create `requirements.txt`. Use `--force` to override already existent file:
   - `pipreqs --force <path_to_source_folder>`
 - Manually (re)add any necessary dependencies removed by `pipreqs` (e.g. `lxml`)
+
+## TODOs
+
+- Run application inside AWS:
+    - Scraping via web browser crashes inside Lambda function
+    - Scraping via ai tool is not reliable
+    - Running app in container on cluster (probably no crash of web browser) is expensive
+    - Running app in EC2 instance is expensive and/or management overhead to build a secure web server
