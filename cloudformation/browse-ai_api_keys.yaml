@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Parameter Store entries for the API keys of https://browse.ai
+
+
+Resources:
+  APIKeyParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: "/il-apr-comparator/browse-ai/api-key"
+      Description: "API key for https://browse.ai."
+      Type: String
+      Value: "x"
+      Tags:
+        project: il-apr-comparator
+
+  RobotIDParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: "/il-apr-comparator/browse-ai/robot-id"
+      Description: "ID of the robot from https://browse.ai for scraping the Bake website."
+      Type: String
+      Value: "x"
+      Tags:
+        project: il-apr-comparator
