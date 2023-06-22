@@ -60,6 +60,7 @@ def get_apr() -> list[dict]:
             if match_obj:
                 apr = float(match_obj.group(0))
                 print(f"Found: {symbols} --> {apr} %")
+                print("----------------------------")
                 result.append({
                     "symbols": symbols,
                     "coin_1": {
