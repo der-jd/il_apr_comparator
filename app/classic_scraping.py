@@ -59,7 +59,7 @@ def get_apr() -> list[dict]:
             match_obj = re.search(r"[0-9]+\.?[0-9]*", apr_block.get_text().strip())
             if match_obj:
                 apr = float(match_obj.group(0))
-                print(f"Found: {symbols} - {apr} %")
+                print(f"Found: {symbols} --> {apr} %")
                 result.append({
                     "symbols": symbols,
                     "coin_1": {

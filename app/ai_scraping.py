@@ -24,7 +24,7 @@ def get_apr() -> list[dict]:
 
     result = []
     for pair in data['result']['capturedLists'][ROBOT_LIST_NAME]:
-        print(f"Found: {pair[ROBOT_LIST_NAME_COINPAIR_COLUMN]} - {pair['apr']}")
+        print(f"Found: {pair[ROBOT_LIST_NAME_COINPAIR_COLUMN]} --> {pair['apr']}")
         symbols = pair[ROBOT_LIST_NAME_COINPAIR_COLUMN]
         result.append({
             "symbols": symbols,
