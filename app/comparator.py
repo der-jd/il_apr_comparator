@@ -14,7 +14,7 @@ def compare_apr_to_il(coin_pairs: list[dict], impermanent_losses: dict, number_o
             "yield": round(apr_per_days - impermanent_losses[pair['symbols']], 3)
         }
 
-    print("\n\n=============================")
+    print("=============================\n\n")
     print(f">>>>>> Comparison between the APRs of the Liquidity Mining pools of 'Bake' and the impermanent losses over the last {number_of_days_for_comparison} days:\n")
     pprint.pprint(result)
     return result
