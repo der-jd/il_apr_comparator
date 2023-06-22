@@ -5,6 +5,7 @@ import ai_scraping
 # Example for returned list:
 # [
 #   {
+#     "symbols": "BTC-DFI",
 #     "coin_1": {
 #       "id": "bitcoin",
 #       "symbol": "btc",
@@ -18,6 +19,7 @@ import ai_scraping
 #     "apr": "10"
 #   },
 #   {
+#     "symbols": "ETH-DFI",
 #     "coin_1": {
 #       "id": "ethereum",
 #       "symbol": "eth",
