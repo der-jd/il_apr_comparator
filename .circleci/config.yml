@@ -17,26 +17,6 @@ parameters:
 
 
 jobs:
-  deploy-ecr-repo:
-    docker:
-      - image: cimg/aws:2023.05
-    steps:
-      - checkout
-      - run:
-          name: "Clone repo for deployment scripts"
-          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 ../aws_cloudformation_scripts
-      - aws-cli/setup:
-          role-arn: "$AWS_ROLE_ARN"
-          aws-region: AWS_REGION
-      - run:
-          name: "Install dependencies"
-          command: |
-            pip install -r ../aws_cloudformation_scripts/scripts/requirements.txt
-      - run:
-          name: "Deploy stack for ECR"
-          command: |
-            ../aws_cloudformation_scripts/scripts/deploy_stack.py --template "./cloudformation/ecr.yaml" --stack_name "il-apr-comparator-ecr-repo"
-
   lint-python-code:
     docker:
       - image: cimg/python:3.11
@@ -166,6 +146,26 @@ jobs:
       - run:
           name: "Delete stack for services"
           command: ../aws_cloudformation_scripts/scripts/delete_stack.py --stack_name "il-apr-comparator"
+
+  deploy-ecr-repo:
+    docker:
+      - image: cimg/aws:2023.05
+    steps:
+      - checkout
+      - run:
+          name: "Clone repo for deployment scripts"
+          command: git clone https://${GH_PAT_CFN_SCRIPTS_REPO}@github.com/der-jd/aws_cloudformation_scripts.git --branch v1.0.0 --depth 1 ../aws_cloudformation_scripts
+      - aws-cli/setup:
+          role-arn: "$AWS_ROLE_ARN"
+          aws-region: AWS_REGION
+      - run:
+          name: "Install dependencies"
+          command: |
+            pip install -r ../aws_cloudformation_scripts/scripts/requirements.txt
+      - run:
+          name: "Deploy stack for ECR"
+          command: |
+            ../aws_cloudformation_scripts/scripts/deploy_stack.py --template "./cloudformation/ecr.yaml" --stack_name "il-apr-comparator-ecr-repo"
 
   delete-ecr-repo:
     docker:
