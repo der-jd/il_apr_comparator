@@ -5,6 +5,7 @@ ATTENTION:
 Robot is not reliable! Sometimes no result at all; sometimes result with empty table.
 """
 
+import os
 import time
 
 import requests
@@ -46,8 +47,8 @@ def get_apr() -> list[dict]:
 def _run_robot() -> dict:
     print("Run the robot for scraping...")
 
-    robot_id = aws.get_parameter_value("/browse-ai/robot-id")
-    api_key = aws.get_parameter_value("/browse-ai/api-key")
+    robot_id = aws.get_parameter_value(os.environ.get('BROWSE_AI_ROBOT_ID'))
+    api_key = aws.get_parameter_value(os.environ.get('BROWSE_AI_API_KEY'))
     url = f"{API_BASE_URL}/robots/{robot_id}/tasks"
     headers = {
         "Authorization": f"Bearer {api_key}"
@@ -66,8 +67,8 @@ def _run_robot() -> dict:
 def _retrieve_task(task_id: str) -> dict:
     print("Wait until the task for scraping is finished...")
 
-    robot_id = aws.get_parameter_value("/browse-ai/robot-id")
-    api_key = aws.get_parameter_value("/browse-ai/api-key")
+    robot_id = aws.get_parameter_value(os.environ.get('BROWSE_AI_ROBOT_ID'))
+    api_key = aws.get_parameter_value(os.environ.get('BROWSE_AI_API_KEY'))
     url = f"{API_BASE_URL}/robots/{robot_id}/tasks/{task_id}"
     headers = {
         "Authorization": f"Bearer {api_key}"

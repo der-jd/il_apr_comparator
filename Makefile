@@ -19,7 +19,9 @@ typecheck-python:
 	pyright
 
 build:
-	docker build --tag il-apr-comparator .
+	docker build \
+		--build-arg aws_region_of_parameter_store=$(AWS_REGION) \
+		--tag il-apr-comparator .
 
 
 # Local test of Lambda function: https://github.com/aws/aws-lambda-python-runtime-interface-client/

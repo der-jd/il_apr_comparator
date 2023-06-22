@@ -7,6 +7,12 @@ FROM python:3.11.3
 RUN addgroup --system docker &&\
     useradd --gid docker --system docker
 
+ARG aws_region_of_parameter_store
+
+ENV AWS_REGION_OF_PARAMETER_STORE=$aws_region_of_parameter_store \
+    BROWSE_AI_ROBOT_ID="/il-apr-comparator/browse-ai/robot-id" \
+    BROWSE_AI_API_KEY="/il-apr-comparator/browse-ai/api-key"
+
 # Create working directory for image and cd into it
 WORKDIR /app
 
