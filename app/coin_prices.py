@@ -55,7 +55,7 @@ def get_current_coin_prices(coin_ids: set[str], currency: str = "eur") -> dict:
 #  }
 #}
 def get_historical_coin_prices(coin_ids: set[str], datetime_utc: datetime.datetime, currency: str = "eur") -> dict:
-    print(f"Get historical coin prices from {datetime_utc.strftime('%d-%m-%Y')} for {coin_ids} in '{currency}'...")
+    print(f"Get historical coin prices at {datetime_utc.strftime('%d-%m-%Y')} for {coin_ids} in '{currency}'...")
 
     prices = {}
     for c in coin_ids:
