@@ -20,8 +20,8 @@ REGEX_HTML_COIN_PAIR_BLOCK = ".*coinTextMedium.*"
 REGEX_HTML_APR_BLOCK = ".*tableCellLeft.*tableCell.*"
 
 
-def get_apr(coin_pair: tuple[str, str]) -> float:
-    print(f"Search for APR of coin pair '{coin_pair[0]}-{coin_pair[1]}'")
+def get_apr() -> list[dict]:
+    print("Scrape the Bake website to get the APR values...")
     print(f"Get HTML content of {URL_BAKE_LM}...")
 
     chrome_options = ChromeOptions()
@@ -47,21 +47,36 @@ def get_apr(coin_pair: tuple[str, str]) -> float:
     if not coin_pair_blocks:
         raise RuntimeError("ERROR: HTML tags which contain coin pairs not found!")
 
+    result = []
     for b in coin_pair_blocks:
-        # Alternative if-pattern/-approach. Just for documentation.
-        # if b.find('span', {'class': re.compile(".*coinText.*")}, string = "BCH") and b.find('span', {'class': re.compile(".*coinText.*")}, string = "-DFI"):
-        if re.match(f"{coin_pair[0]}\n?-\n?{coin_pair[1]}", b.get_text().strip(), re.IGNORECASE) or \
-           re.match(f"{coin_pair[1]}\n?-\n?{coin_pair[0]}", b.get_text().strip(), re.IGNORECASE): # e.g. "BCH-DFI" or "DFI-BCH"
-            print(f"Requested coin pair '{coin_pair[0]}-{coin_pair[1]}' found!")
-            print("Search for corresponding APR...")
-            apr_block = b.find_next('div', {'class': re.compile(REGEX_HTML_APR_BLOCK)})
+        symbols = b.get_text().strip()
+        print(f"Found '{symbols}'")
 
-            if re.match("APR[0-9]?", apr_block.get_text().strip()): # 'match' checks for a match only at the beginning of the string
-                match_obj = re.search(r"[0-9]+\.?[0-9]*", apr_block.get_text().strip())
-                if match_obj:
-                    return float(match_obj.group(0))
-                raise RuntimeError(f"ERROR: Value for APR of coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
+        print("Search for corresponding APR...")
+        apr_block = b.find_next('div', {'class': re.compile(REGEX_HTML_APR_BLOCK)})
 
-            raise RuntimeError(f"ERROR: APR of coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
+        if re.match("APR[0-9]?", apr_block.get_text().strip()): # 'match' checks for a match only at the beginning of the string
+            match_obj = re.search(r"[0-9]+\.?[0-9]*", apr_block.get_text().strip())
+            if match_obj:
+                apr = float(match_obj.group(0))
+                print(f"Found: {symbols} - {apr} %")
+                result.append({
+                    "symbols": symbols,
+                    "coin_1": {
+                        "id": "",
+                        "symbol": symbols.split('-')[0],
+                        "name": ""
+                    },
+                    "coin_2": {
+                        "id": "",
+                        "symbol": symbols.split('-')[1],
+                        "name": ""
+                    },
+                    "apr": apr
+                })
+            else:
+                raise RuntimeError(f"ERROR: Value for APR of coin pair '{symbols}' not found!")
+        else:
+            raise RuntimeError(f"ERROR: APR block of coin pair '{symbols}' not found!")
 
-    raise RuntimeError(f"ERROR: Coin pair '{coin_pair[0]}-{coin_pair[1]}' not found!")
+    return result
