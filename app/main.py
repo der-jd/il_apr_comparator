@@ -5,15 +5,16 @@ import datetime
 import liquidity_mining_apr
 import coin_prices
 import impermanent_loss
+import comparator
 
 
-def lambda_handler(event, context) -> None: # pylint: disable = unused-argument
-    _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "classic")
+def lambda_handler(event, context) -> dict: # pylint: disable = unused-argument
+    return _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "classic")
 
 
 # IMPORTANT: The tool displays some values with two decimals and truncates the rest. It does NOT round them in a mathematical sense!
 # I.e. 0.6775 --> 0.677 instead of the expected 0.678
-def _main(number_of_days_for_comparison: int, currency = "eur", scraping = "classic") -> None:
+def _main(number_of_days_for_comparison: int, currency = "eur", scraping = "classic") -> dict:
     # Get APRs for Liquidity mining
     coin_pairs = liquidity_mining_apr.get_apr(scraping = scraping)
 
@@ -24,22 +25,11 @@ def _main(number_of_days_for_comparison: int, currency = "eur", scraping = "clas
     datetime_utc = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days = number_of_days_for_comparison)
     historical_coin_prices = coin_prices.get_historical_coin_prices(coin_ids, datetime_utc, currency = currency)
 
-    # Calculate impermanent loss
-    for pair in coin_pairs:
-        print(f"Calculate impermanent loss for {pair['symbols']} over the last {number_of_days_for_comparison} days...")
-        _impermanent_loss = impermanent_loss.calculate_impermanent_loss(historical_coin_prices[pair['coin_1']['id']][currency],
-                                                                        historical_coin_prices[pair['coin_2']['id']][currency],
-                                                                        current_coin_prices[pair['coin_1']['id']][currency],
-                                                                        current_coin_prices[pair['coin_2']['id']][currency])
-        print(f">>>>>> Impermanent loss for {pair['symbols']} over the last {number_of_days_for_comparison} days: {round(_impermanent_loss, 3)} %")
+    # Calculate impermanent losses
+    impermanent_losses = impermanent_loss.calculate_impermanent_losses(coin_pairs, historical_coin_prices, current_coin_prices, currency)
 
-
-        print(f">>>>>> APR for Liquidity Pool {pair['symbols']}: {round(float(pair['apr']), 3)} %")
-        apr_per_days = float(pair['apr'])/(365/number_of_days_for_comparison)
-        print(f">>>>>> APR for Liquidity Pool {pair['symbols']} per {number_of_days_for_comparison} days: {round(apr_per_days, 3)} %")
-
-        print("\n=============================")
-        print(f">>>>>> The Liquidity Mining yield for {pair['symbols']} per {number_of_days_for_comparison} days is: {round(apr_per_days - _impermanent_loss, 3)} %\n")
+    # Compare impermanent loss to APR
+    return comparator.compare_apr_to_il(coin_pairs, impermanent_losses, number_of_days_for_comparison)
 
 
 def _get_coin_ids(coin_pairs: list[dict]) -> set[str]:
