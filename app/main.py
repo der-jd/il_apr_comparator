@@ -8,14 +8,14 @@ import impermanent_loss
 
 
 def lambda_handler(event, context) -> None: # pylint: disable = unused-argument
-    _main(number_of_days_for_comparison = 30, currency = "eur")
+    _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "classic")
 
 
 # IMPORTANT: The tool displays some values with two decimals and truncates the rest. It does NOT round them in a mathematical sense!
 # I.e. 0.6775 --> 0.677 instead of the expected 0.678
-def _main(number_of_days_for_comparison: int, currency = "eur") -> None:
+def _main(number_of_days_for_comparison: int, currency = "eur", scraping = "classic") -> None:
     # Get APRs for Liquidity mining
-    coin_pairs = liquidity_mining_apr.get_apr(scraping = "classic")
+    coin_pairs = liquidity_mining_apr.get_apr(scraping = scraping)
 
     # Get coin prices
     coin_pairs = coin_prices.add_coin_info_for_symbols(coin_pairs)
