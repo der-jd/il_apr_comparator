@@ -17,7 +17,8 @@ ENV AWS_DEFAULT_REGION=$aws_default_region \
     AWS_ACCESS_KEY_ID=$aws_access_key_id \
     AWS_SECRET_ACCESS_KEY=$aws_secret_access_key \
     BROWSE_AI_ROBOT_ID="/il-apr-comparator/browse-ai/robot-id" \
-    BROWSE_AI_API_KEY="/il-apr-comparator/browse-ai/api-key"
+    BROWSE_AI_API_KEY="/il-apr-comparator/browse-ai/api-key" \
+    SNS_TOPIC="/il-apr-comparator/sns/topic"
 
 # Create working directory for image and cd into it
 WORKDIR /app

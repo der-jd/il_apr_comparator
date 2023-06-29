@@ -37,9 +37,41 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                "AWS:SourceAccount": !Sub "${AWS::AccountId}"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole # For access to CloudWatch
-        - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+        - !Ref SNSPolicy
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
+
+  SNSPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "Allow publishing to the SNS topic for the il-apr-comparator"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          Effect: Allow
+          Action:
+            - sns:publish
+          Resource: !Ref SNSTopic
+
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
+
+  SNSTopicParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: "/il-apr-comparator/sns/topic"
+      Description: "Name of the SNS topic for notifications about the comparison result. Consumed in application code."
+      Type: String
+      Value: !Ref SNSTopic
+      Tags:
+        project: il-apr-comparator

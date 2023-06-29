@@ -2,14 +2,16 @@
 
 import datetime
 
-import liquidity_mining_apr
+import aws
 import coin_prices
-import impermanent_loss
 import comparator
+import impermanent_loss
+import liquidity_mining_apr
 
 
 def lambda_handler(event, context) -> dict: # pylint: disable = unused-argument
-    return _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "ai")
+    result = _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "ai")
+    aws.send_sns_notification(result)
 
 
 # IMPORTANT: The tool displays some values with two decimals and truncates the rest. It does NOT round them in a mathematical sense!
@@ -41,4 +43,4 @@ def _get_coin_ids(coin_pairs: list[dict]) -> set[str]:
 
 
 if __name__ == "__main__":
-    lambda_handler({}, None) # pylint: disable = no-value-for-parameter
+    _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "classic")
