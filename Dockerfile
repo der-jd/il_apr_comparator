@@ -7,9 +7,13 @@ FROM python:3.11.3
 RUN addgroup --system docker &&\
     useradd --gid docker --system docker
 
-ARG aws_region_of_parameter_store
+ARG aws_default_region
+ARG aws_access_key_id
+ARG aws_secret_access_key
 
-ENV AWS_REGION_OF_PARAMETER_STORE=$aws_region_of_parameter_store \
+ENV AWS_DEFAULT_REGION=$aws_default_region \
+    AWS_ACCESS_KEY_ID=$aws_access_key_id \
+    AWS_SECRET_ACCESS_KEY=$aws_secret_access_key \
     BROWSE_AI_ROBOT_ID="/il-apr-comparator/browse-ai/robot-id" \
     BROWSE_AI_API_KEY="/il-apr-comparator/browse-ai/api-key"
 
