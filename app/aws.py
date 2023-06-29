@@ -13,4 +13,5 @@ def get_parameter_value(parameter_name: str) -> str:
 def send_sns_notification(message: dict) -> None:
     client = boto3.client('sns')
     topic_arn = get_parameter_value(os.environ.get('SNS_TOPIC')) # pyright: ignore [reportGeneralTypeIssues]
+    print(f"Publish message to topic '{topic_arn}'...")
     client.publish(TopicArn = topic_arn, Message = json.dumps(message))
