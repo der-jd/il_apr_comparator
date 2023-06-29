@@ -42,6 +42,7 @@ Resources:
                 "AWS:SourceAccount": !Sub "${AWS::AccountId}"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole # For access to CloudWatch
+        - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess # Access Parameter Store inside application code
         - !Ref SNSPolicy
       Tags:
         - Key: "project"
