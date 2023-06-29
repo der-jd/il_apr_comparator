@@ -8,7 +8,7 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Name: "/il-apr-comparator/browse-ai/api-key"
-      Description: "API key for https://browse.ai."
+      Description: "API key for https://browse.ai. Consumed in application code."
       Type: String
       Value: "x"
       Tags:
@@ -18,7 +18,7 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Name: "/il-apr-comparator/browse-ai/robot-id"
-      Description: "ID of the robot from https://browse.ai for scraping the Bake website."
+      Description: "ID of the robot from https://browse.ai for scraping the Bake website. Consumed in application code."
       Type: String
       Value: "x"
       Tags:
