@@ -9,7 +9,7 @@ import comparator
 
 
 def lambda_handler(event, context) -> dict: # pylint: disable = unused-argument
-    return _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "classic")
+    return _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "ai")
 
 
 # IMPORTANT: The tool displays some values with two decimals and truncates the rest. It does NOT round them in a mathematical sense!
