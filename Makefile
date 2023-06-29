@@ -19,7 +19,7 @@ typecheck-python:
 	pyright
 
 
-build-and-run: build setup-local-lambda-test run-lambda-image run-lambda-function
+build-and-run: build run-lambda-image run-lambda-function
 
 build:
 	docker build \
