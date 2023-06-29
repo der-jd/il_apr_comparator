@@ -9,6 +9,7 @@ import impermanent_loss
 import liquidity_mining_apr
 
 
+# TODO trigger lambda automatically and regularly # pylint: disable = fixme
 def lambda_handler(event, context) -> dict: # pylint: disable = unused-argument
     result = _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "ai")
     aws.send_sns_notification(result)
