@@ -23,9 +23,9 @@ build-and-run: build setup-local-lambda-test run-lambda-image run-lambda-functio
 
 build:
 	docker build \
-		--build-arg aws_default_region=$(AWS_DEFAULT_REGION) \
-		--build-arg aws_access_key_id=$(AWS_ACCESS_KEY_ID) \
-		--build-arg aws_secret_access_key=$(AWS_SECRET_ACCESS_KEY) \
+		--build-arg aws_default_region=$(AWS_REGION) \
+		--build-arg aws_access_key_id=$(AWS_ACCESS_KEY) \
+		--build-arg aws_secret_access_key=$(AWS_SECRET_KEY) \
 		--tag il-apr-comparator .
 
 
