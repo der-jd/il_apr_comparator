@@ -88,6 +88,7 @@ def _retrieve_task(task_id: str) -> dict:
             if data['result']['status'] == "failed":
                 if failure_allowed:
                     failure_allowed = False # failure is only allowed once
+                    print("Task of the browse.ai robot failed once but try again...")
                 else:
                     raise RuntimeError(f"ERROR: Task of the browse.ai robot failed!\n{response.status_code} {response.reason}")
 
