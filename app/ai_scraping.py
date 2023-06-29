@@ -15,7 +15,7 @@ import aws
 
 ROBOT_LIST_NAME = "Coin_Pairs_LM_APR"
 ROBOT_LIST_NAME_COINPAIR_COLUMN = "coin_pair"
-ROBOT_DOUBLE_CHECK  = True # If a task fails, try to run it once more before finally failing  
+ROBOT_DOUBLE_CHECK  = True # If a task fails, try to run it once more before finally failing
 API_BASE_URL = "https://api.browse.ai/v2" # API docu: https://www.browse.ai/docs/api/v2
 
 
