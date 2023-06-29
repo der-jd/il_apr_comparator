@@ -11,6 +11,8 @@ ARG aws_default_region
 ARG aws_access_key_id
 ARG aws_secret_access_key
 
+# Use AWS access key instead of a role to allow execution of the image in a local environment.
+# If the image would only run inside an AWS service (e.g. Lambda function), we could use a service role.
 ENV AWS_DEFAULT_REGION=$aws_default_region \
     AWS_ACCESS_KEY_ID=$aws_access_key_id \
     AWS_SECRET_ACCESS_KEY=$aws_secret_access_key \
