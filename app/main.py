@@ -12,6 +12,7 @@ import liquidity_mining_apr
 def lambda_handler(event, context) -> dict: # pylint: disable = unused-argument
     result = _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "ai")
     aws.send_sns_notification(result)
+    return result
 
 
 # IMPORTANT: The tool displays some values with two decimals and truncates the rest. It does NOT round them in a mathematical sense!
