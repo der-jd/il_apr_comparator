@@ -133,6 +133,15 @@ jobs:
       - run:
           name: "Build Docker image"
           command: make build
+      - run:
+          name: Save image as tar
+          command: |
+            mkdir --parents images
+            docker image save --output "images/il-apr-comparator" "il-apr-comparator:latest"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - images
 
   upload-image:
     docker:
@@ -147,6 +156,11 @@ jobs:
       - run:
           name: Authenticate to ECR
           command: aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - attach_workspace:
+          at: .
+      - run:
+          name: Load image from workspace
+          command: docker image load < "images/il-apr-comparator"
       - run:
           name: "Upload image to ECR"
           command: |
