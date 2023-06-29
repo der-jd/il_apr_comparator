@@ -15,6 +15,7 @@ import aws
 
 ROBOT_LIST_NAME = "Coin_Pairs_LM_APR"
 ROBOT_LIST_NAME_COINPAIR_COLUMN = "coin_pair"
+ROBOT_DOUBLE_CHECK  = True # If a task fails, try to run it once more before finally failing  
 API_BASE_URL = "https://api.browse.ai/v2" # API docu: https://www.browse.ai/docs/api/v2
 
 
@@ -76,6 +77,7 @@ def _retrieve_task(task_id: str) -> dict:
         "Authorization": f"Bearer {api_key}"
     }
 
+    failure_allowed = ROBOT_DOUBLE_CHECK
     while True:
         print(f"Call {url}...")
         try:
@@ -84,7 +86,10 @@ def _retrieve_task(task_id: str) -> dict:
             data = response.json()
 
             if data['result']['status'] == "failed":
-                raise RuntimeError(f"ERROR: Task of the browse.ai robot failed!\n{response.status_code} {response.reason}")
+                if failure_allowed:
+                    failure_allowed = False # failure is only allowed once
+                else:
+                    raise RuntimeError(f"ERROR: Task of the browse.ai robot failed!\n{response.status_code} {response.reason}")
 
             if data['result']['status'] == "successful":
                 print("Task finished successfully!")
@@ -92,4 +97,4 @@ def _retrieve_task(task_id: str) -> dict:
         except (requests.exceptions.RequestException, ValueError) as err:
             raise RuntimeError(f"ERROR: API call to retrieve task of the browse.ai robot failed!\n{str(err)}") from err
 
-        time.sleep(5)
+        time.sleep(10)
