@@ -1,8 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Description: Lambda function to compare Impermanent Loss to APR.
-# TODO: The application does not run in AWS because none of the scraping methods for the APR works inside Lambda!
-# Check the corresponding source files for further information.
 
 
 Parameters:
@@ -28,7 +26,6 @@ Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ["-", [!Ref AWS::Region, "il-apr-comparator-lambda-execution-role"]]
       Description: "Execution role automatically assumed by the corresponding Lambda function"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -41,9 +38,9 @@ Resources:
               StringEquals:
                 "AWS:SourceAccount": !Sub "${AWS::AccountId}"
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole # For access to CloudWatch
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole # Access CloudWatch for log output
         - arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess # Access Parameter Store inside application code
-        - !Ref SNSPolicy
+        - !Ref SNSPolicy # Access SNS topic inside application code
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
@@ -76,3 +73,34 @@ Resources:
       Value: !Ref SNSTopic
       Tags:
         project: il-apr-comparator
+
+  LambdaScheduleRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Schedule rule to trigger Lambda function"
+      ScheduleExpression: 'rate(30 days)'
+      State: ENABLED
+      RoleArn: !GetAtt EventRuleRole.Arn
+      Targets:
+        - Arn: !GetAtt LambdaFunction.Arn
+          Id: LambdaTarget
+
+  EventRuleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Role to trigger a Lambda function by an EventBridge rule"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                "AWS:SourceAccount": !Sub "${AWS::AccountId}"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaRole
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
