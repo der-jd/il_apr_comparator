@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import json
 
 import aws
 import coin_prices
@@ -11,8 +12,13 @@ import liquidity_mining_apr
 
 # TODO trigger lambda automatically and regularly # pylint: disable = fixme
 def lambda_handler(event, context) -> dict: # pylint: disable = unused-argument
-    result = _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "ai")
-    aws.send_sns_notification(result)
+    try:
+        result = _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "ai")
+    except Exception:
+        aws.send_sns_notification(subject = "AWS Notification: ERROR IL-APR-Comparator", message = "The execution of the IL-APR-Comparator failed! Check the logs for further info.")
+        raise
+
+    aws.send_sns_notification(subject = "AWS Notification: IL-APR-Comparator", message = json.dumps(result, indent = 4))
     return result
 
 
