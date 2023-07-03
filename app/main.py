@@ -15,7 +15,7 @@ import liquidity_mining_apr
 def lambda_handler(event, context) -> dict: # pylint: disable = unused-argument
     try:
         result = _main(number_of_days_for_comparison = 30, currency = "eur", scraping = "ai")
-    except Exception:
+    except Exception: # pylint: disable = broad-exception-caught
         aws.send_sns_notification(topic_arn = aws.get_parameter_value(os.environ.get('SNS_TOPIC_ERRORS')), # pyright: ignore [reportGeneralTypeIssues]
                                   subject = "AWS Notification: ERROR IL-APR-Comparator",
                                   message = "The execution of the IL-APR-Comparator failed! Check the logs for further info.")
