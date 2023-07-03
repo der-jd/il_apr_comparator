@@ -1,5 +1,3 @@
-import os
-
 import boto3
 
 
@@ -9,8 +7,7 @@ def get_parameter_value(parameter_name: str) -> str:
     value = response['Parameter']['Value']
     return value
 
-def send_sns_notification(subject: str, message: str) -> None:
+def send_sns_notification(topic_arn: str, subject: str, message: str) -> None:
     client = boto3.client('sns')
-    topic_arn = get_parameter_value(os.environ.get('SNS_TOPIC')) # pyright: ignore [reportGeneralTypeIssues]
     print(f"Publish message to topic '{topic_arn}'...")
     client.publish(TopicArn = topic_arn, Subject = subject, Message = message)

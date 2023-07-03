@@ -55,22 +55,41 @@ Resources:
           Effect: Allow
           Action:
             - sns:publish
-          Resource: !Ref SNSTopic
+          Resource:
+            - !Ref SNSTopicForResult
+            - !Ref SNSTopicForErrors
 
-  SNSTopic:
+  SNSTopicForResult:
     Type: AWS::SNS::Topic
     Properties:
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
 
-  SNSTopicParameter:
+  SNSTopicForErrors:
+    Type: AWS::SNS::Topic
+    Properties:
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
+
+  SNSTopicForResultParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: "/il-apr-comparator/sns/topic"
+      Name: "/il-apr-comparator/sns/topic/result"
       Description: "Name of the SNS topic for notifications about the comparison result. Consumed in application code."
       Type: String
-      Value: !Ref SNSTopic
+      Value: !Ref SNSTopicForResult
+      Tags:
+        project: il-apr-comparator
+
+  SNSTopicForErrorsParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: "/il-apr-comparator/sns/topic/errors"
+      Description: "Name of the SNS topic for notifications about execution errors. Consumed in application code."
+      Type: String
+      Value: !Ref SNSTopicForErrors
       Tags:
         project: il-apr-comparator
 
