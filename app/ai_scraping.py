@@ -16,13 +16,27 @@ import aws
 ROBOT_LIST_NAME = "Coin_Pairs_LM_APR"
 ROBOT_LIST_NAME_COINPAIR_COLUMN = "coin_pair"
 ROBOT_DOUBLE_CHECK  = True # If a task fails, try to run it once more before finally failing
+# If the robot fails which sometimes happens even after a potential double check, the robot can be run again.
+# This is additionally to the potential double check! That means a number of '2' here can lead with double check to maximum number of 4 runs in total.
+# The robot is always run at least once, whatever number is defined here!
+ROBOT_MAX_NUMBER_OF_TRIES = 2
 API_BASE_URL = "https://api.browse.ai/v2" # API docu: https://www.browse.ai/docs/api/v2
 
 
 def get_apr() -> list[dict]:
     print("Use web service browse.ai to get the APR values...")
-    data = _run_robot()
-    data = _retrieve_task(data['result']['id'])
+    number_of_tries = 1
+    while True:
+        try:
+            data = _run_robot()
+            data = _retrieve_task(data['result']['id'])
+            break
+        except RuntimeError:
+            if number_of_tries < ROBOT_MAX_NUMBER_OF_TRIES:
+                number_of_tries += 1
+                print(f"Run of the browse.ai robot failed but '{ROBOT_MAX_NUMBER_OF_TRIES}' runs are allowed, so try again...")
+            else:
+                raise RuntimeError("ERROR: Maximum number of tries exceeded!")
 
     result = []
     for pair in data['result']['capturedLists'][ROBOT_LIST_NAME]:
@@ -88,7 +102,7 @@ def _retrieve_task(task_id: str) -> dict:
             if data['result']['status'] == "failed":
                 if failure_allowed:
                     failure_allowed = False # failure is only allowed once
-                    print("Task of the browse.ai robot failed once but try again...")
+                    print("Task of the browse.ai robot failed once but 'double check' is activated, so try again...")
                 else:
                     raise RuntimeError(f"ERROR: Task of the browse.ai robot failed!\n{response.status_code} {response.reason}")
 
