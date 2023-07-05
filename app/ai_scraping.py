@@ -31,12 +31,12 @@ def get_apr() -> list[dict]:
             data = _run_robot()
             data = _retrieve_task(data['result']['id'])
             break
-        except RuntimeError:
+        except RuntimeError as err:
             if number_of_tries < ROBOT_MAX_NUMBER_OF_TRIES:
                 number_of_tries += 1
                 print(f"Run of the browse.ai robot failed but '{ROBOT_MAX_NUMBER_OF_TRIES}' runs are allowed, so try again...")
             else:
-                raise RuntimeError("ERROR: Maximum number of tries exceeded!")
+                raise RuntimeError("ERROR: Maximum number of tries exceeded!") from err
 
     result = []
     for pair in data['result']['capturedLists'][ROBOT_LIST_NAME]:
