@@ -101,8 +101,8 @@ Resources:
       State: ENABLED
       RoleArn: !GetAtt EventRuleRole.Arn
       Targets:
-        - Arn: !GetAtt LambdaFunction.Arn
-          Id: LambdaTarget
+        - Id: LambdaTarget
+          Arn: !GetAtt LambdaFunction.Arn
 
   EventRuleRole:
     Type: AWS::IAM::Role
