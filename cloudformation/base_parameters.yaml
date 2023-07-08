@@ -24,7 +24,7 @@ Resources:
       Tags:
         project: il-apr-comparator
 
-  MailAddress:
+  MailAddressForResultNotificationsParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Name: "/il-apr-comparator/notifications/result/mail-address"
