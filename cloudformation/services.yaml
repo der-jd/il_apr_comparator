@@ -45,6 +45,14 @@ Resources:
         - Key: "project"
           Value: "il-apr-comparator"
 
+  LambdaTriggerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref LambdaFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt LambdaScheduleRule.Arn
+
   SNSPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -113,27 +121,6 @@ Resources:
       Description: "Schedule rule to trigger Lambda function"
       ScheduleExpression: 'rate(30 days)'
       State: ENABLED
-      RoleArn: !GetAtt EventRuleRole.Arn
       Targets:
         - Id: LambdaTarget
           Arn: !GetAtt LambdaFunction.Arn
-
-  EventRuleRole:
-    Type: AWS::IAM::Role
-    Properties:
-      Description: "Role to trigger a Lambda function by an EventBridge rule"
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: events.amazonaws.com
-            Action: sts:AssumeRole
-            Condition:
-              StringEquals:
-                "AWS:SourceAccount": !Sub "${AWS::AccountId}"
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AWSLambda_FullAccess
-      Tags:
-        - Key: "project"
-          Value: "il-apr-comparator"
