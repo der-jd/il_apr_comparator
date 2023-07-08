@@ -119,7 +119,7 @@ Resources:
               StringEquals:
                 "AWS:SourceAccount": !Sub "${AWS::AccountId}"
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaRole
+        - arn:aws:iam::aws:policy/AWSLambda_FullAccess
       Tags:
         - Key: "project"
           Value: "il-apr-comparator"
