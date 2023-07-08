@@ -66,12 +66,12 @@ Resources:
         - Key: "project"
           Value: "il-apr-comparator"
 
-  SNSTopicForErrors:
-    Type: AWS::SNS::Topic
+  SNSTopicForResultSubscriptions:
+    Type: AWS::SNS::Subscription
     Properties:
-      Tags:
-        - Key: "project"
-          Value: "il-apr-comparator"
+      Endpoint: "{{resolve:ssm:/il-apr-comparator/notifications/result/mail-address}}"
+      Protocol: email
+      TopicArn: !Ref SNSTopicForResult
 
   SNSTopicForResultParameter:
     Type: AWS::SSM::Parameter
@@ -82,6 +82,20 @@ Resources:
       Value: !Ref SNSTopicForResult
       Tags:
         project: il-apr-comparator
+
+  SNSTopicForErrors:
+    Type: AWS::SNS::Topic
+    Properties:
+      Tags:
+        - Key: "project"
+          Value: "il-apr-comparator"
+
+  SNSTopicForErrorsSubscriptions:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: "{{resolve:ssm:/il-apr-comparator/notifications/errors/mail-address}}"
+      Protocol: email
+      TopicArn: !Ref SNSTopicForErrors
 
   SNSTopicForErrorsParameter:
     Type: AWS::SSM::Parameter

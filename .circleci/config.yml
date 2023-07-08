@@ -46,19 +46,19 @@ workflows:
     jobs:
       - deploy-ecr-repo:
           context: github
-      - deploy-browse-ai-api-keys:
+      - deploy-base-params:
           context: github
-      - add-values-for-api-keys-in-aws:
+      - add-values-for-base-params-in-aws:
           type: approval
           requires:
-            - deploy-browse-ai-api-keys
+            - deploy-base-params
 
   delete-stacks:
     when: << pipeline.parameters.delete-stacks >>
     jobs:
       - delete-services:
           context: github
-      - delete-browse-ai-api-keys:
+      - delete-base-params:
           context: github
       - delete-ecr-repo:
           requires:
@@ -257,7 +257,7 @@ jobs:
           name: "Delete stack for ECR repo"
           command: ../aws_cloudformation_scripts/scripts/delete_stack.py --stack_name "il-apr-comparator-ecr-repo"
 
-  deploy-browse-ai-api-keys:
+  deploy-base-params:
     docker:
       - image: cimg/aws:2023.05
     steps:
@@ -273,11 +273,11 @@ jobs:
           command: |
             pip install -r ../aws_cloudformation_scripts/scripts/requirements.txt
       - run:
-          name: "Deploy stack for API keys"
+          name: "Deploy stack for base parameters"
           command: |
-            ../aws_cloudformation_scripts/scripts/deploy_stack.py --template "./cloudformation/browse-ai_api_keys.yaml" --stack_name "il-apr-comparator-browse-ai-api-keys"
+            ../aws_cloudformation_scripts/scripts/deploy_stack.py --template "./cloudformation/base_parameters.yaml" --stack_name "il-apr-comparator-base-parameters"
 
-  delete-browse-ai-api-keys:
+  delete-base-params:
     docker:
       - image: cimg/aws:2023.05
     steps:
@@ -292,5 +292,5 @@ jobs:
           name: "Install dependencies"
           command: pip install -r ../aws_cloudformation_scripts/scripts/requirements.txt
       - run:
-          name: "Delete stack for API keys"
-          command: ../aws_cloudformation_scripts/scripts/delete_stack.py --stack_name "il-apr-comparator-browse-ai-api-keys"
+          name: "Delete stack for base parameters"
+          command: ../aws_cloudformation_scripts/scripts/delete_stack.py --stack_name "il-apr-comparator-base-parameters"
