@@ -119,7 +119,7 @@ Resources:
     Type: AWS::Events::Rule
     Properties:
       Description: "Schedule rule to trigger Lambda function"
-      ScheduleExpression: 'rate(30 days)'
+      ScheduleExpression: 'rate(7 days)'
       State: ENABLED
       Targets:
         - Id: LambdaTarget
