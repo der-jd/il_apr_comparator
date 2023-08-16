@@ -132,7 +132,8 @@ def _find_matching_symbol(coin: dict, supported_coins: list[dict]) -> dict:
                 "doge": "dogecoin",
                 "usdc": "usd coin",
                 "bch": "bitcoin cash",
-                "ltc": "litecoin"
+                "ltc": "litecoin",
+                "usdt": "tether"
             }
             if coin['symbol'].lower() in special_cases:
                 if supp_coin['name'].lower() == special_cases[coin['symbol'].lower()]:
