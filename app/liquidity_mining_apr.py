@@ -51,7 +51,7 @@ def get_apr(scraping: str) -> list[dict]:
 
 def keep_only_specified_coin_pairs(all_coin_pairs: list[dict]):
     print("Impermanent loss will only be calculated for the specified coin pairs:")
-    specified_coin_pairs = aws.get_parameter_value(os.environ.get('BAKE_COIN_PAIRS_FOR_IL')) # pyright: ignore [reportGeneralTypeIssues]
+    specified_coin_pairs = list(aws.get_parameter_value(os.environ.get('BAKE_COIN_PAIRS_FOR_IL')).split(",")) # pyright: ignore [reportGeneralTypeIssues]
     if not specified_coin_pairs:
         raise ValueError("ERROR: No coin pairs specified! Please enter a list of pairs in the according Parameter Store entry.")
     print(specified_coin_pairs)
@@ -61,5 +61,9 @@ def keep_only_specified_coin_pairs(all_coin_pairs: list[dict]):
     for p in all_coin_pairs:
         if p['symbols'] in specified_coin_pairs:
             resulting_list.append(p)
+
+    if not resulting_list:
+        raise RuntimeError("ERROR: Resulting list is empty! None of the specified coin pairs matched with the ones extracted from Bake.")
+    print(f"Resulting list:\n{resulting_list}")
 
     return resulting_list
