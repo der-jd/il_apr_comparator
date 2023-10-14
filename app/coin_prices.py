@@ -130,7 +130,7 @@ def _find_matching_symbol(coin: dict, supported_coins: list[dict]) -> dict:
             special_cases = {
                 "dfi": "defichain",
                 "doge": "dogecoin",
-                "usdc": "usd coin",
+                "usdc": "usd-coin",
                 "bch": "bitcoin cash",
                 "ltc": "litecoin",
                 "usdt": "tether"
