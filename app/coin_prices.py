@@ -128,11 +128,12 @@ def _find_matching_symbol(coin: dict, supported_coins: list[dict]) -> dict:
         if coin['symbol'].lower() == supp_coin['symbol'].lower():
             # ATTENTION: Hardcoded assumptions about the available coin pairs on 'Bake' as there are multiple ids for the symbols from the website!
             special_cases = {
+                "bch": "bitcoin cash",
                 "dfi": "defichain",
                 "doge": "dogecoin",
-                "usdc": "usd-coin",
-                "bch": "bitcoin cash",
+                "eth": "ethereum",
                 "ltc": "litecoin",
+                "usdc": "USDC",
                 "usdt": "tether"
             }
             if coin['symbol'].lower() in special_cases:
