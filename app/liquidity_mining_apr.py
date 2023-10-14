@@ -1,3 +1,6 @@
+import os
+
+import aws
 import classic_scraping
 import ai_scraping
 
@@ -45,3 +48,18 @@ def get_apr(scraping: str) -> list[dict]:
         return ai_scraping.get_apr()
 
     raise RuntimeError(f"ERROR: Scraping method '{scraping}' unknown!")
+
+def keep_only_specified_coin_pairs(all_coin_pairs: list[dict]):
+    print("Impermanent loss will only be calculated for the specified coin pairs:")
+    specified_coin_pairs = aws.get_parameter_value(os.environ.get('BAKE_COIN_PAIRS_FOR_IL')) # pyright: ignore [reportGeneralTypeIssues]
+    if not specified_coin_pairs:
+        raise ValueError("ERROR: No coin pairs specified! Please enter a list of pairs in the according Parameter Store entry.")
+    print(specified_coin_pairs)
+
+    print("Discard other coin pairs from the list...")
+    resulting_list = []
+    for p in all_coin_pairs:
+        if p['symbols'] in specified_coin_pairs:
+            resulting_list.append(p)
+
+    return resulting_list

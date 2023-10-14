@@ -30,7 +30,8 @@ def lambda_handler(event, context) -> dict: # pylint: disable = unused-argument
 # I.e. 0.6775 --> 0.677 instead of the expected 0.678
 def _main(number_of_days_for_comparison: int, currency = "eur", scraping = "classic") -> dict:
     # Get APRs for Liquidity mining
-    coin_pairs = liquidity_mining_apr.get_apr(scraping = scraping)
+    all_coin_pairs = liquidity_mining_apr.get_apr(scraping = scraping)
+    coin_pairs = liquidity_mining_apr.keep_only_specified_coin_pairs(all_coin_pairs)
 
     # Get coin prices
     coin_pairs = coin_prices.add_coin_info_for_symbols(coin_pairs)

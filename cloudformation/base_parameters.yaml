@@ -24,6 +24,16 @@ Resources:
       Tags:
         project: il-apr-comparator
 
+  CoinPairsForIL:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: "/il-apr-comparator/bake/coin-pairs-for-il"
+      Description: "List of coin pairs for which the impermanent loss gets calculated. Consumed in application code."
+      Type: StringList
+      Value: "x"
+      Tags:
+        project: il-apr-comparator
+
   MailAddressForResultNotificationsParameter:
     Type: AWS::SSM::Parameter
     Properties:

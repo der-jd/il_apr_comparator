@@ -18,6 +18,7 @@ ENV AWS_DEFAULT_REGION=$aws_default_region \
     AWS_SECRET_ACCESS_KEY=$aws_secret_access_key \
     BROWSE_AI_ROBOT_ID="/il-apr-comparator/browse-ai/robot-id" \
     BROWSE_AI_API_KEY="/il-apr-comparator/browse-ai/api-key" \
+    BAKE_COIN_PAIRS_FOR_IL="/il-apr-comparator/bake/coin-pairs-for-il" \
     SNS_TOPIC_RESULT="/il-apr-comparator/sns/topic/result" \
     SNS_TOPIC_ERRORS="/il-apr-comparator/sns/topic/errors"
 
