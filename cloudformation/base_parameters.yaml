@@ -28,7 +28,7 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Name: "/il-apr-comparator/bake/coin-pairs-for-il"
-      Description: "List of coin pairs for which the impermanent loss gets calculated. Consumed in application code."
+      Description: "List of coin pairs for which the impermanent losses get calculated. Consumed in application code."
       Type: StringList
       Value: "x"
       Tags:
