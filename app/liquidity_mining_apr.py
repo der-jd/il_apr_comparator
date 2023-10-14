@@ -49,7 +49,7 @@ def get_apr(scraping: str) -> list[dict]:
 
     raise RuntimeError(f"ERROR: Scraping method '{scraping}' unknown!")
 
-def keep_only_specified_coin_pairs(all_coin_pairs: list[dict]):
+def keep_only_specified_coin_pairs(all_coin_pairs: list[dict]) -> list[dict]:
     print("Impermanent loss will only be calculated for the specified coin pairs:")
     specified_coin_pairs = list(aws.get_parameter_value(os.environ.get('BAKE_COIN_PAIRS_FOR_IL')).split(",")) # pyright: ignore [reportGeneralTypeIssues]
     if not specified_coin_pairs:
