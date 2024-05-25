@@ -1,7 +1,10 @@
 import boto3
 
 
-def get_parameter_value(parameter_name: str) -> str:
+def get_parameter_value(parameter_name: str | None) -> str:
+    if parameter_name is None:
+        return ""
+
     client = boto3.client('ssm')
     response = client.get_parameter(Name = parameter_name)
     value = response['Parameter']['Value']
