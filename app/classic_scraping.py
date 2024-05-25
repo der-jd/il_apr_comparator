@@ -43,8 +43,12 @@ def get_apr() -> list[dict]:
 
     soup = BeautifulSoup(html, "lxml")
     block_with_cryptocurrencies = soup.find('div', {'class': re.compile(REGEX_HTML_COIN_PAIRS_BLOCK)})
-    # Ignore two pyright errors in the following line (don't know how to fix them).
-    coin_pair_blocks = block_with_cryptocurrencies.find_all('span', {'class': re.compile(REGEX_HTML_COIN_PAIR_BLOCK)}) # pyright: ignore [reportGeneralTypeIssues, reportOptionalMemberAccess]
+
+    if not block_with_cryptocurrencies:
+      raise RuntimeError("ERROR: HTML tags which contain coin pair blocks not found!")
+
+    # Ignore pyright error in the following line (don't know how to fix it)
+    coin_pair_blocks = block_with_cryptocurrencies.find_all('span', {'class': re.compile(REGEX_HTML_COIN_PAIR_BLOCK)}) # pyright: ignore reportAttributeAccessIssue
     print(f"Found coin pairs:\n{[p.get_text().strip() for p in coin_pair_blocks]}")
 
     if not coin_pair_blocks:
