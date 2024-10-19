@@ -47,11 +47,12 @@ The whole build and deployment process is automated via `CircleCI` pipelines usi
 
 #### Project environment variables
 
-- AWS_ACCESS_KEY
-- AWS_ACCOUNT_ID
-- AWS_REGION
 - AWS_ROLE_ARN
 - AWS_SECRET_KEY
+- For executions in a local environment
+  - AWS_ACCESS_KEY
+  - AWS_ACCOUNT_ID
+  - AWS_REGION
 
 #### Contexts
 
